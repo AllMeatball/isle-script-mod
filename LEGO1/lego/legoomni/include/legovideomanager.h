@@ -4,6 +4,7 @@
 #include "decomp.h"
 #include "lego1_export.h"
 #include "legophonemelist.h"
+#include "misc.h"
 #include "mxvideomanager.h"
 
 #ifdef MINIWIN
@@ -130,6 +131,20 @@ private:
 
 	friend class DebugViewer;
 };
+
+#ifdef LEGO1_DLL
+#include <sol/sol.hpp>
+
+inline void VideoManager_SolWrap(sol::state &p_lua)
+{
+	sol::usertype<LegoVideoManager> videomanager_type = p_lua.new_usertype<LegoVideoManager>(
+		"LegoVideoManager",
+		"EnableFullScreenMovieWithScale", &LegoVideoManager::EnableFullScreenMovieWithScale
+	);
+
+	p_lua["VideoManager"] = &VideoManager;
+}
+#endif
 
 // SYNTHETIC: LEGO1 0x1007ab20
 // LegoVideoManager::`scalar deleting destructor'

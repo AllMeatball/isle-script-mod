@@ -88,6 +88,14 @@ protected:
 	MxDSAction* m_action0x60;                   // 0x60
 };
 
+#ifdef LEGO1_DLL
+inline void MxStreamController_SolWrap(sol::state& p_lua)
+{
+	sol::usertype<MxStreamController> streamcontroller_type =
+		p_lua.new_usertype<MxStreamController>("MxStreamController", "GetAtom", &MxStreamController::GetAtom);
+}
+#endif
+
 // TEMPLATE: LEGO1 0x100c0d60
 // list<MxDSObject *,allocator<MxDSObject *> >::~list<MxDSObject *,allocator<MxDSObject *> >
 

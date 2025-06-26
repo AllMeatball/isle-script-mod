@@ -122,6 +122,15 @@ private:
 	MxMemoryPool128 m_pool128;               // 0x20
 };
 
+#ifdef LEGO1_DLL
+#include <sol/sol.hpp>
+inline void MxStreamer_SolWrap(sol::state& p_lua)
+{
+	sol::usertype<MxStreamer> streamer_type = p_lua.new_usertype<MxStreamer>("MxStreamer", "Open", &MxStreamer::Open);
+	p_lua["Streamer"] = &Streamer; // Create Streamer function
+}
+#endif
+
 // clang-format off
 // TEMPLATE: LEGO1 0x100b9090
 // TEMPLATE: BETA10 0x10146020

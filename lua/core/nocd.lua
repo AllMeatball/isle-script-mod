@@ -1,9 +1,6 @@
--- local SDL_MESSAGEBOX_INFORMATION = 0x00000040
--- ShowMessageBox(SDL_MESSAGEBOX_INFORMATION, "Whoops you have to put the CD in your computer")
-
 local stream = Streamer():Open("\\lego\\scripts\\nocd", 0)
 if not stream then
-	ShowMessageBox(SDL_MESSAGEBOX_INFORMATION, "Failed to open NOCD.si: Streamer failed to load");
+	ShowMessageBox(MESSAGEBOX_INFORMATION, "Failed to open NOCD.si: Streamer failed to load");
 	return
 end
 

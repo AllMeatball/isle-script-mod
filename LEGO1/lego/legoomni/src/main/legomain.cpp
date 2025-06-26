@@ -21,6 +21,7 @@
 #include "mxautolock.h"
 #include "mxbackgroundaudiomanager.h"
 #include "mxdisplaysurface.h"
+#include "mxdsaction.h"
 #include "mxmisc.h"
 #include "mxnotificationmanager.h"
 #include "mxomnicreateparam.h"
@@ -627,7 +628,8 @@ void LegoOmni::Resume()
 	SetAppCursor(e_cursorArrow);
 }
 
-bool LUA_ShowMessageBox(int flags, const char *message) {
+bool LUA_ShowMessageBox(int flags, const char* message)
+{
 	return Any_ShowSimpleMessageBox(flags, "LEGO® Island (Lua)", message, nullptr);
 }
 
@@ -635,41 +637,21 @@ void LegoOmni::SetupLuaState()
 {
 	m_lua = sol::state();
 	m_lua.open_libraries(sol::lib::base, sol::lib::table, sol::lib::string, sol::lib::math);
-
-	// TODO: compartmentalize
-	sol::usertype<MxStreamer> streamer_type = m_lua.new_usertype<MxStreamer>(
-		"MxStreamer",
-		"Open", &MxStreamer::Open
-	);
-
-	sol::usertype<MxStreamController> streamcontroller_type = m_lua.new_usertype<MxStreamController>(
-		"MxStreamController",
-		"GetAtom", &MxStreamController::GetAtom
-	);
-
-	m_lua["Streamer"] = &Streamer; // Create Streamer function
-
 	m_lua.set_function("ShowMessageBox", LUA_ShowMessageBox);
 
-	sol::usertype<LegoVideoManager> videomanager_type = m_lua.new_usertype<LegoVideoManager>(
-		"LegoVideoManager",
-		"EnableFullScreenMovieWithScale", &LegoVideoManager::EnableFullScreenMovieWithScale
-	);
+	MxStreamer_SolWrap(m_lua);
+	MxStreamController_SolWrap(m_lua);
 
-	m_lua["VideoManager"] = &VideoManager;
+	VideoManager_SolWrap(m_lua);
+	MxDSAction_SolWrap(m_lua);
 
-	sol::usertype<MxDSAction> mxdsaction_type = m_lua.new_usertype<MxDSAction>(
-		"MxDSAction",
-		sol::constructors<MxDSAction()>(),
-		"SetAtomId",    &MxDSAction::SetAtomId,
-		"SetUnknown24", &MxDSAction::SetUnknown24,
-		"SetObjectId",  &MxDSAction::SetObjectId
-	);
-
-	sol::usertype<LegoOmni> omni_type = m_lua.new_usertype<LegoOmni>(
-		"LegoOmni",
-		"Start", &LegoOmni::Start
-	);
+	sol::usertype<LegoOmni> omni_type = m_lua.new_usertype<LegoOmni>("LegoOmni", "Start", &LegoOmni::Start);
 
 	m_lua["LEGO"] = this;
+
+	m_lua["MESSAGEBOX_ERROR"] = SDL_MESSAGEBOX_ERROR;
+	m_lua["MESSAGEBOX_WARNING"] = SDL_MESSAGEBOX_WARNING;
+	m_lua["MESSAGEBOX_INFORMATION"] = SDL_MESSAGEBOX_INFORMATION;
+	m_lua["MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT"] = SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT;
+	m_lua["MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT"] = SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT;
 }
