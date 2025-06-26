@@ -72,3 +72,48 @@ target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
 target_link_libraries(imgui PUBLIC SDL3::Headers)
 target_link_libraries(imgui PRIVATE SDL3::SDL3)
 set_property(TARGET imgui PROPERTY CXX_CLANG_TIDY "")
+
+# Lua
+set(lua_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lua/src")
+add_library(lua STATIC
+    ${lua_SOURCE_DIR}/lapi.c
+    ${lua_SOURCE_DIR}/lcode.c
+    ${lua_SOURCE_DIR}/lctype.c
+    ${lua_SOURCE_DIR}/ldebug.c
+    ${lua_SOURCE_DIR}/ldo.c
+    ${lua_SOURCE_DIR}/ldump.c
+    ${lua_SOURCE_DIR}/lfunc.c
+    ${lua_SOURCE_DIR}/lgc.c
+    ${lua_SOURCE_DIR}/llex.c
+    ${lua_SOURCE_DIR}/lmem.c
+    ${lua_SOURCE_DIR}/lobject.c
+    ${lua_SOURCE_DIR}/lopcodes.c
+    ${lua_SOURCE_DIR}/lparser.c
+    ${lua_SOURCE_DIR}/lstate.c
+    ${lua_SOURCE_DIR}/lstring.c
+    ${lua_SOURCE_DIR}/ltable.c
+    ${lua_SOURCE_DIR}/ltm.c
+    ${lua_SOURCE_DIR}/lundump.c
+    ${lua_SOURCE_DIR}/lvm.c
+    ${lua_SOURCE_DIR}/lzio.c
+
+# Lua libraries
+    ${lua_SOURCE_DIR}/lauxlib.c
+    ${lua_SOURCE_DIR}/lbaselib.c
+    ${lua_SOURCE_DIR}/lcorolib.c
+    ${lua_SOURCE_DIR}/ldblib.c
+    ${lua_SOURCE_DIR}/liolib.c
+    ${lua_SOURCE_DIR}/lmathlib.c
+    ${lua_SOURCE_DIR}/loadlib.c
+    ${lua_SOURCE_DIR}/loslib.c
+    ${lua_SOURCE_DIR}/lstrlib.c
+    ${lua_SOURCE_DIR}/ltablib.c
+    ${lua_SOURCE_DIR}/lutf8lib.c
+    ${lua_SOURCE_DIR}/linit.c
+)
+
+if (LINUX)
+    target_compile_definitions(lua PRIVATE LUA_USE_LINUX)
+elseif (UNIX)
+    target_compile_definitions(lua PRIVATE LUA_USE_POSIX)
+endif()

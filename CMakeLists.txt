@@ -142,6 +142,10 @@ target_link_directories(DirectX5::DirectX5 INTERFACE "${CMAKE_SOURCE_DIR}/3rdpar
 add_library(Vec::Vec INTERFACE IMPORTED)
 target_include_directories(Vec::Vec INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/vec")
 
+add_library(Sol2::Sol2 INTERFACE IMPORTED)
+target_include_directories(Sol2::Sol2 INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/sol2/include")
+target_include_directories(lua INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/lua/src")
+
 add_library(lego1
   LEGO1/main.cpp
 )
@@ -154,6 +158,7 @@ target_include_directories(lego1 PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/L
 target_include_directories(lego1 PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/LEGO1/lego/legoomni/include>")
 target_include_directories(lego1 PUBLIC "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/LEGO1/lego/legoomni/include/actions>")
 target_link_libraries(lego1 PRIVATE SDL3::SDL3)
+target_link_libraries(lego1 PRIVATE lua)
 target_link_libraries(lego1 PUBLIC SDL3::Headers)
 target_link_libraries(lego1 PRIVATE $<$<BOOL:${ISLE_USE_DX5}>:DirectX5::DirectX5>)
 if(WIN32)
