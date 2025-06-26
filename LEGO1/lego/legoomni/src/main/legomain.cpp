@@ -628,10 +628,14 @@ void LegoOmni::Resume()
 	SetAppCursor(e_cursorArrow);
 }
 
+bool LUA_ShowMessageBox(int flags, const char *message) {
+	return Any_ShowSimpleMessageBox(flags, "LEGO® Island (Lua)", message, nullptr);
+}
+
 void LegoOmni::SetupLuaState()
 {
 	m_lua = sol::state();
 	m_lua.open_libraries(sol::lib::base, sol::lib::table, sol::lib::string, sol::lib::math);
 
-	m_lua.set_function("ShowMessageBox", SDL_ShowSimpleMessageBox);
+	m_lua.set_function("ShowMessageBox", LUA_ShowMessageBox);
 }

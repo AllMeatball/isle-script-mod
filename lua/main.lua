@@ -1,1 +1,2 @@
-ShowMessageBox(0x00000040, "TEST", "Hello", nil)
+local SDL_MESSAGEBOX_INFORMATION = 0x00000040
+ShowMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game loaded!")
