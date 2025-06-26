@@ -32,6 +32,7 @@
 #include "scripts.h"
 #include "viewmanager/viewmanager.h"
 
+#include <SDL3/SDL.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_stdinc.h>
 
@@ -280,6 +281,9 @@ MxResult LegoOmni::Create(MxOmniCreateParam& p_param)
 	m_notificationManager->Register(this);
 	SetAppCursor(e_cursorBusy);
 	m_gameState->SetCurrentAct(LegoGameState::e_act1);
+
+	SetupLuaState();
+	ExecScriptFile("main");
 
 	result = SUCCESS;
 
@@ -622,4 +626,12 @@ void LegoOmni::Resume()
 {
 	MxOmni::Resume();
 	SetAppCursor(e_cursorArrow);
+}
+
+void LegoOmni::SetupLuaState()
+{
+	m_lua = sol::state();
+	m_lua.open_libraries(sol::lib::base, sol::lib::table, sol::lib::string, sol::lib::math);
+
+	m_lua.set_function("ShowMessageBox", SDL_ShowSimpleMessageBox);
 }

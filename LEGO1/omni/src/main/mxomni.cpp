@@ -452,3 +452,35 @@ vector<MxString> MxOmni::GlobIsleFiles(const MxString& p_path)
 	SDL_free(files);
 	return result;
 }
+
+MxString MxOmni::GetScriptPath(const char *p_path)
+{
+	MxString script_path(g_hdPath.GetData());
+	script_path += "\\lua\\";
+	script_path += p_path;
+	script_path += ".lua";
+	script_path.MapPathToFilesystem();
+
+	return script_path;
+}
+
+std::string MxOmni::ExecScriptFile(const char *p_path)
+{
+	// if (m_ssqVM.isNull()) {
+	// 	return "m_ssqVM is not ready";
+	// }
+
+	MxString real_path = GetScriptPath(p_path);
+
+	const char *script_path = real_path.GetData();
+	SDL_Log("Executing script '%s'", script_path);
+
+	try {
+		m_lua.safe_script_file(script_path);
+	} catch (const sol::error& e) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", e.what());
+		return std::string(e.what());
+	}
+
+	return std::string();
+}
