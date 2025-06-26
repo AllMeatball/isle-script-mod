@@ -29,14 +29,14 @@ typedef MxLong MxResult;
 #define FAILURE -1
 #endif
 
-typedef MxU8 MxBool;
+typedef bool MxBool;
 
 #ifndef TRUE
-#define TRUE 1
+#define TRUE true
 #endif
 
 #ifndef FALSE
-#define FALSE 0
+#define FALSE false
 #endif
 
 #ifndef NULL

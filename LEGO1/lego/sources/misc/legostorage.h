@@ -182,6 +182,22 @@ public:
 		return this;
 	}
 
+	LegoStorage* ReadBool(LegoBool& p_data)
+	{
+		MxBool u8_bool;
+		Read(&u8_bool, sizeof(LegoU8));
+		p_data = p_data > 0 ? 1 : 0;
+
+		return this;
+	}
+
+	LegoStorage* WriteBool(LegoBool p_data)
+	{
+		LegoBool u8_bool = p_data ? 1 : 0;
+		Write(&u8_bool, sizeof(LegoU8));
+		return this;
+	}
+
 	// SYNTHETIC: LEGO1 0x10045b00
 	// LegoStorage::`scalar deleting destructor'
 

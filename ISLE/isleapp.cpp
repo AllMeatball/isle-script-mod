@@ -752,6 +752,7 @@ MxResult IsleApp::SetupWindow()
 // FUNCTION: ISLE 0x4028d0
 bool IsleApp::LoadConfig()
 {
+	// TODO: maybe use a different app name?
 	char* prefPath = SDL_GetPrefPath("isledecomp", "isle");
 	char* iniConfig;
 	if (m_iniPath) {

@@ -9,6 +9,6 @@ local ds = MxDSAction:new()
 ds:SetAtomId(stream:GetAtom())
 ds:SetUnknown24(-1)
 ds:SetObjectId(0)
-VideoManager():EnableFullScreenMovieWithScale(1, 1)
+VideoManager():EnableFullScreenMovieWithScale(true, true)
 
 LEGO:Start(ds)

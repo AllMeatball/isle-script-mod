@@ -1452,7 +1452,7 @@ MxResult Act1State::Serialize(LegoStorage* p_storage)
 		}
 
 		p_storage->ReadS16(m_cptClickDialogue.m_nextIndex);
-		p_storage->ReadU8(m_unk0x022);
+		p_storage->ReadBool(m_unk0x022);
 	}
 
 	return SUCCESS;

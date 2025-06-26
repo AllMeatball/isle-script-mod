@@ -55,14 +55,17 @@ void MxFlcPresenter::LoadFrame(MxStreamChunk* p_chunk)
 	MxU8* rects = data;
 	data += rectCount * sizeof(MxRect32);
 
+	MxU8 u8_decodedColorMap;
 	MxBool decodedColorMap;
 	DecodeFLCFrame(
 		&m_frameBitmap->GetBitmapInfo()->m_bmiHeader,
 		m_frameBitmap->GetImage(),
 		m_flcHeader,
 		(FLIC_FRAME*) data,
-		&decodedColorMap
+		&u8_decodedColorMap
 	);
+
+	decodedColorMap = u8_decodedColorMap > 0 ? true : false;
 
 	if (((MxDSMediaAction*) m_action)->GetPaletteManagement() && decodedColorMap) {
 		RealizePalette();

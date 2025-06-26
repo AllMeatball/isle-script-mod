@@ -21,8 +21,8 @@
 #define S_OK ((HRESULT) 0)
 #define E_NOINTERFACE (0x80004002)
 #define VOID void
-#define TRUE 1
-#define FALSE 0
+#define TRUE true
+#define FALSE false
 
 #define SWP_NOACTIVATE 0x0010
 #define SWP_NOMOVE 0x0002
@@ -62,7 +62,8 @@ typedef int32_t LONG;
 typedef uint32_t ULONG, DWORD;
 typedef long HRESULT;
 typedef DWORD* LPDWORD;
-typedef int BOOL, WINBOOL, INT;
+typedef int INT;
+typedef bool BOOL, WINBOOL;
 typedef unsigned int UINT;
 typedef unsigned short WORD;
 typedef int* LPLONG;

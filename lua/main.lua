@@ -1,1 +1,1 @@
-ShowMessageBox(MESSAGEBOX_INFORMATION, "Game loaded!")
+-- ShowMessageBox(MESSAGEBOX_INFORMATION, "Game loaded!")

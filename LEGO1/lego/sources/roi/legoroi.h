@@ -5,7 +5,7 @@
 #include "misc/legotypes.h"
 #include "viewmanager/viewroi.h"
 
-typedef unsigned char (*ColorOverride)(const char*, char*, unsigned int);
+typedef MxBool (*ColorOverride)(const char*, char*, unsigned int);
 typedef unsigned char (*TextureHandler)(const char*, unsigned char*, unsigned int);
 
 class LegoEntity;

@@ -99,7 +99,7 @@ void LegoPhonemePresenter::LoadFrame(MxStreamChunk* p_chunk)
 	MxRect32* rects = (MxRect32*) data;
 	data += m_rectCount * sizeof(MxRect32);
 
-	MxBool decodedColorMap;
+	MxU8 decodedColorMap;
 	DecodeFLCFrame(
 		&m_frameBitmap->GetBitmapInfo()->m_bmiHeader,
 		m_frameBitmap->GetImage(),

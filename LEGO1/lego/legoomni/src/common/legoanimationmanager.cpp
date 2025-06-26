@@ -2992,7 +2992,7 @@ MxResult AnimState::Serialize(LegoStorage* p_storage)
 #endif
 
 			for (i = 0; i < m_locationsFlagsLength; i++) {
-				p_storage->ReadU8(m_locationsFlags[i]);
+				p_storage->ReadBool(m_locationsFlags[i]);
 			}
 		}
 		else if (p_storage->IsWriteMode()) {
@@ -3007,7 +3007,7 @@ MxResult AnimState::Serialize(LegoStorage* p_storage)
 
 			p_storage->WriteU32(m_locationsFlagsLength);
 			for (i = 0; i < m_locationsFlagsLength; i++) {
-				p_storage->WriteU8(m_locationsFlags[i]);
+				p_storage->WriteBool(m_locationsFlags[i]);
 			}
 		}
 	}

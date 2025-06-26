@@ -1720,16 +1720,18 @@ MxResult LegoVehicleBuildState::Serialize(LegoStorage* p_storage)
 
 	if (p_storage->IsReadMode()) {
 		p_storage->ReadU8(m_unk0x4c);
-		p_storage->ReadU8(m_unk0x4d);
-		p_storage->ReadU8(m_unk0x4e);
+
+		p_storage->ReadBool(m_unk0x4d);
+		p_storage->ReadBool(m_unk0x4e);
+
 #ifndef BETA10
 		p_storage->ReadU8(m_placedPartCount);
 #endif
 	}
 	else {
 		p_storage->WriteU8(m_unk0x4c);
-		p_storage->WriteU8(m_unk0x4d);
-		p_storage->WriteU8(m_unk0x4e);
+		p_storage->WriteBool(m_unk0x4d);
+		p_storage->WriteBool(m_unk0x4e);
 #ifndef BETA10
 		p_storage->WriteU8(m_placedPartCount);
 #endif
