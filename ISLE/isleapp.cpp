@@ -968,21 +968,23 @@ inline bool IsleApp::Tick()
 	MxDSAction ds;
 
 	if (!stream) {
-		stream = Streamer()->Open("\\lego\\scripts\\nocd", MxStreamer::e_diskStream);
-		if (!stream) {
-			SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to open NOCD.si: Streamer failed to load");
-			return false;
-		}
+		LegoOmni::GetInstance()->ExecScriptFile("core\\nocd");
 
-		ds.SetAtomId(stream->GetAtom());
-		ds.SetUnknown24(-1);
-		ds.SetObjectId(0);
-		VideoManager()->EnableFullScreenMovie(TRUE, TRUE);
-
-		if (Start(&ds) != SUCCESS) {
-			SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to open NOCD.si: Failed to start initial action");
-			return false;
-		}
+		// stream = Streamer()->Open("\\lego\\scripts\\nocd", MxStreamer::e_diskStream);
+		// if (!stream) {
+		// 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to open NOCD.si: Streamer failed to load");
+		// 	return false;
+		// }
+  //
+		// ds.SetAtomId(stream->GetAtom());
+		// ds.SetUnknown24(-1);
+		// ds.SetObjectId(0);
+		// VideoManager()->EnableFullScreenMovie(TRUE, TRUE);
+  //
+		// if (Start(&ds) != SUCCESS) {
+		// 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to open NOCD.si: Failed to start initial action");
+		// 	return false;
+		// }
 	}
 	else {
 		ds.SetAtomId(stream->GetAtom());
@@ -1078,20 +1080,21 @@ MxResult IsleApp::VerifyFilesystem()
 			}
 		}
 
-		if (!found) {
-			char buffer[1024];
-			SDL_snprintf(
-				buffer,
-				sizeof(buffer),
-				"\"LEGO® Island\" failed to start.\nPlease make sure the file %s is located in either diskpath or "
-				"cdpath.\nSDL error: %s",
-				file,
-				SDL_GetError()
-			);
-
-			Any_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "LEGO® Island Error", buffer, NULL);
-			return FAILURE;
-		}
+		// HACK: this brings NOCD back for a bit before the proper patches are applied
+		// if (!found) {
+		// 	char buffer[1024];
+		// 	SDL_snprintf(
+		// 		buffer,
+		// 		sizeof(buffer),
+		// 		"\"LEGO® Island\" failed to start.\nPlease make sure the file %s is located in either diskpath or "
+		// 		"cdpath.\nSDL error: %s",
+		// 		file,
+		// 		SDL_GetError()
+		// 	);
+  //
+		// 	Any_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "LEGO® Island Error", buffer, NULL);
+		// 	return FAILURE;
+		// }
 	}
 #endif
 
