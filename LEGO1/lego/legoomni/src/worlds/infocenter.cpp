@@ -1262,7 +1262,7 @@ void Infocenter::PlayCutscene(Cutscene p_entityId, MxBool p_scale)
 {
 	m_currentCutscene = p_entityId;
 
-	VideoManager()->EnableFullScreenMovie(TRUE, p_scale);
+	VideoManager()->EnableFullScreenMovieWithScale(TRUE, p_scale);
 	InputManager()->SetUnknown336(TRUE);
 	InputManager()->SetUnknown335(TRUE);
 	SetAppCursor(e_cursorNone);

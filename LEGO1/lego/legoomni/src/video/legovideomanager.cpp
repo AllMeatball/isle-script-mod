@@ -541,11 +541,11 @@ MxResult LegoVideoManager::ResetPalette(MxBool p_ignoreSkyColor)
 // FUNCTION: LEGO1 0x1007c300
 void LegoVideoManager::EnableFullScreenMovie(MxBool p_enable)
 {
-	EnableFullScreenMovie(p_enable, TRUE);
+	EnableFullScreenMovieWithScale(p_enable, TRUE);
 }
 
 // FUNCTION: LEGO1 0x1007c310
-void LegoVideoManager::EnableFullScreenMovie(MxBool p_enable, MxBool p_scale)
+void LegoVideoManager::EnableFullScreenMovieWithScale(MxBool p_enable, MxBool p_scale)
 {
 	if (m_isFullscreenMovie != p_enable) {
 		m_isFullscreenMovie = p_enable;

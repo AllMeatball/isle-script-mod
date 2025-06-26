@@ -23,7 +23,6 @@
 #include "mxdisplaysurface.h"
 #include "mxmisc.h"
 #include "mxnotificationmanager.h"
-#include "mxomnicreateflags.h"
 #include "mxomnicreateparam.h"
 #include "mxstreamer.h"
 #include "mxticklemanager.h"
@@ -637,5 +636,40 @@ void LegoOmni::SetupLuaState()
 	m_lua = sol::state();
 	m_lua.open_libraries(sol::lib::base, sol::lib::table, sol::lib::string, sol::lib::math);
 
+	// TODO: compartmentalize
+	sol::usertype<MxStreamer> streamer_type = m_lua.new_usertype<MxStreamer>(
+		"MxStreamer",
+		"Open", &MxStreamer::Open
+	);
+
+	sol::usertype<MxStreamController> streamcontroller_type = m_lua.new_usertype<MxStreamController>(
+		"MxStreamController",
+		"GetAtom", &MxStreamController::GetAtom
+	);
+
+	m_lua["Streamer"] = &Streamer; // Create Streamer function
+
 	m_lua.set_function("ShowMessageBox", LUA_ShowMessageBox);
+
+	sol::usertype<LegoVideoManager> videomanager_type = m_lua.new_usertype<LegoVideoManager>(
+		"LegoVideoManager",
+		"EnableFullScreenMovieWithScale", &LegoVideoManager::EnableFullScreenMovieWithScale
+	);
+
+	m_lua["VideoManager"] = &VideoManager;
+
+	sol::usertype<MxDSAction> mxdsaction_type = m_lua.new_usertype<MxDSAction>(
+		"MxDSAction",
+		sol::constructors<MxDSAction()>(),
+		"SetAtomId",    &MxDSAction::SetAtomId,
+		"SetUnknown24", &MxDSAction::SetUnknown24,
+		"SetObjectId",  &MxDSAction::SetObjectId
+	);
+
+	sol::usertype<LegoOmni> omni_type = m_lua.new_usertype<LegoOmni>(
+		"LegoOmni",
+		"Start", &LegoOmni::Start
+	);
+
+	m_lua["LEGO"] = this;
 }
