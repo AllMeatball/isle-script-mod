@@ -193,7 +193,7 @@ public:
 
 	LegoStorage* WriteBool(LegoBool p_data)
 	{
-		LegoBool u8_bool = p_data ? 1 : 0;
+		LegoU8 u8_bool = p_data ? 1 : 0;
 		Write(&u8_bool, sizeof(LegoU8));
 		return this;
 	}
