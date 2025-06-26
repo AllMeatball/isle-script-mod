@@ -7,6 +7,8 @@
 #include "mxdsaction.h"
 #include "mxomni.h"
 
+#include <sol/sol.hpp>
+
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_timer.h>
 
@@ -199,6 +201,8 @@ public:
 
 		SDL_PushEvent(&event);
 	}
+
+	sol::state m_lua;
 
 	// SYNTHETIC: LEGO1 0x10058b30
 	// LegoOmni::`scalar deleting destructor'
