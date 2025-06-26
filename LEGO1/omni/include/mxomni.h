@@ -105,8 +105,8 @@ public:
 	MxLong HandleEndAction(MxParam& p_param);
 
 	sol::state m_lua;
-	MxString GetScriptPath(const char *p_path);
-	std::string ExecScriptFile(const char *p_path);
+	MxString GetScriptPath(const char* p_path);
+	std::string ExecScriptFile(const char* p_path);
 
 	// SYNTHETIC: LEGO1 0x100aefd0
 	// MxOmni::`scalar deleting destructor'
