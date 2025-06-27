@@ -442,7 +442,7 @@ vector<MxString> MxOmni::GlobIsleFiles(const MxString& p_path)
 	}
 
 	for (int i = 0; i < count; i++) {
-		if (!SDL_strncasecmp(files[i], "lego", 4)) {
+		if (!SDL_strncasecmp(files[i], "lego", 4) || !SDL_strncasecmp(files[i], "scriptmod", 9)) {
 			result.emplace_back(files[i]);
 		}
 	}
