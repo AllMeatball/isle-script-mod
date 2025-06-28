@@ -3,6 +3,7 @@
 
 #include "actionsfwd.h"
 #include "decomp.h"
+#include "misc.h"
 #include "lego1_export.h"
 #include "mxtypes.h"
 #include "mxvariable.h"
@@ -39,7 +40,7 @@ public:
 	void SetValue(const char* p_colorString) override; // vtable+0x04
 
 	void SetLightColor(float p_r, float p_g, float p_b);
-	void SetLightColor();
+	void SetLightColorHSV();
 	void ToggleDayNight(MxBool p_sun);
 	void ToggleSkyColor();
 
@@ -272,6 +273,33 @@ public:
 };
 
 MxBool ROIColorOverride(const char* p_input, char* p_output, MxU32 p_copyLen);
+
+#ifdef LEGO1_DLL
+#include <sol/sol.hpp>
+
+static void LegoGameState_SolWrap(sol::state &p_lua) {
+	p_lua["GameState"] = &GameState;
+	sol::usertype<LegoBackgroundColor> bgcolor_type = p_lua.new_usertype<LegoBackgroundColor>(
+		"LegoBackgroundColor",
+
+		"ToggleDayNight",
+		&LegoBackgroundColor::ToggleDayNight,
+
+		"SetLightColor",
+		&LegoBackgroundColor::SetLightColor,
+
+		"SetLightColorHSV",
+		&LegoBackgroundColor::SetLightColorHSV
+	);
+
+	sol::usertype<LegoGameState> gamestate_type = p_lua.new_usertype<LegoGameState>(
+		"LegoGameState",
+
+		"GetBackgroundColor",
+		&LegoGameState::GetBackgroundColor
+	);
+}
+#endif
 
 // SYNTHETIC: LEGO1 0x1003c860
 // LegoGameState::ScoreItem::ScoreItem

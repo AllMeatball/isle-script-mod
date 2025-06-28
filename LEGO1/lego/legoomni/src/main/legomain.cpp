@@ -661,7 +661,9 @@ void LegoOmni::SetupLuaState()
 	MxStreamer_SolWrap(m_lua);
 	MxStreamController_SolWrap(m_lua);
 
+	LegoGameState_SolWrap(m_lua);
 	VideoManager_SolWrap(m_lua);
+
 	MxDSAction_SolWrap(m_lua);
 
 	sol::usertype<LegoOmni> omni_type = m_lua.new_usertype<LegoOmni>(
