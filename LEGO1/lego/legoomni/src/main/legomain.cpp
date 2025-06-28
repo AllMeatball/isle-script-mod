@@ -5,6 +5,7 @@
 #include "legoanimationmanager.h"
 #include "legobuildingmanager.h"
 #include "legocharactermanager.h"
+#include "legoeventnotificationparam.h"
 #include "legogamestate.h"
 #include "legoinputmanager.h"
 #include "legoobjectfactory.h"
@@ -669,13 +670,130 @@ void LegoOmni::SetupLuaState()
 
 	m_lua.set_function("ShowMessageBox", LUA_ShowMessageBox);
 
+	// TODO: implement destructors
+	sol::usertype<MxAtomId> atomid_type =
+		m_lua.new_usertype<MxAtomId>("MxAtomId", sol::constructors<MxAtomId(const char*, LookupMode)>());
+
+	sol::usertype<LegoEventNotificationParam> eventnotif_type = m_lua.new_usertype<LegoEventNotificationParam>(
+		"LegoEventNotificationParam",
+
+		"GetNotification",
+		&LegoEventNotificationParam::GetNotification,
+
+		"GetROI",
+		&LegoEventNotificationParam::GetROI,
+
+		"GetKey",
+		&LegoEventNotificationParam::GetKey,
+
+		"GetX",
+		&LegoEventNotificationParam::GetX,
+
+		"GetY",
+		&LegoEventNotificationParam::GetY
+	);
+
+	m_lua.new_enum(
+		"LegoEventNotificationButton",
+
+		"c_lButtonState",
+		LegoEventNotificationParam::c_lButtonState,
+
+		"c_rButtonState",
+		LegoEventNotificationParam::c_rButtonState,
+
+		"c_modKey1",
+		LegoEventNotificationParam::c_modKey1,
+
+		"c_modKey2",
+		LegoEventNotificationParam::c_modKey2
+	);
+
+	m_lua.new_enum(
+		"NotificationId",
+
+		"c_notificationType0",
+		NotificationId::c_notificationType0,
+
+		"c_notificationStartAction",
+		NotificationId::c_notificationStartAction,
+
+		"c_notificationEndAction",
+		NotificationId::c_notificationEndAction,
+
+		"c_notificationType4",
+		NotificationId::c_notificationType4,
+
+		"c_notificationPresenter",
+		NotificationId::c_notificationPresenter,
+
+		"c_notificationStreamer",
+		NotificationId::c_notificationStreamer,
+
+		"c_notificationKeyPress",
+		NotificationId::c_notificationKeyPress,
+
+		"c_notificationButtonUp",
+		NotificationId::c_notificationButtonUp,
+
+		"c_notificationButtonDown",
+		NotificationId::c_notificationButtonDown,
+
+		"c_notificationMouseMove",
+		NotificationId::c_notificationMouseMove,
+
+		"c_notificationClick",
+		NotificationId::c_notificationClick,
+
+		"c_notificationDragStart",
+		NotificationId::c_notificationDragStart,
+
+		"c_notificationDrag",
+		NotificationId::c_notificationDrag,
+
+		"c_notificationDragEnd",
+		NotificationId::c_notificationDragEnd,
+
+		"c_notificationTimer",
+		NotificationId::c_notificationTimer,
+
+		"c_notificationControl",
+		NotificationId::c_notificationControl,
+
+		"c_notificationEndAnim",
+		NotificationId::c_notificationEndAnim,
+
+		"c_notificationPathStruct",
+		NotificationId::c_notificationPathStruct,
+
+		"c_notificationType20",
+		NotificationId::c_notificationType20,
+
+		"c_notificationNewPresenter",
+		NotificationId::c_notificationNewPresenter,
+
+		"c_notificationType22",
+		NotificationId::c_notificationType22,
+
+		"c_notificationType23",
+		NotificationId::c_notificationType23,
+
+		"c_notificationTransitioned",
+		NotificationId::c_notificationTransitioned
+	);
+
 	MxStreamer_SolWrap(m_lua);
 	MxStreamController_SolWrap(m_lua);
 
 	VideoManager_SolWrap(m_lua);
 	MxDSAction_SolWrap(m_lua);
 
-	sol::usertype<LegoOmni> omni_type = m_lua.new_usertype<LegoOmni>("LegoOmni", "Start", &LegoOmni::Start);
+	sol::usertype<LegoOmni> omni_type = m_lua.new_usertype<LegoOmni>(
+		"LegoOmni",
+
+		"Start",
+		&LegoOmni::Start
+	);
 
 	m_lua["LEGO"] = this;
 
