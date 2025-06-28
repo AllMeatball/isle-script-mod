@@ -9,8 +9,9 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_timer.h>
+
+#define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
-#include <sol/state.hpp>
 
 class Isle;
 class LegoAnimationManager;
