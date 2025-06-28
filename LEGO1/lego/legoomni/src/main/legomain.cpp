@@ -633,10 +633,40 @@ bool LUA_ShowMessageBox(int flags, const char* message)
 	return Any_ShowSimpleMessageBox(flags, "LEGO® Island (Lua)", message, nullptr);
 }
 
+MxString GetScriptPath(const char* p_path)
+{
+
+	MxString script_path(Lego()->GetHD());
+	script_path += "\\lua\\";
+	script_path += p_path;
+	script_path += ".lua";
+	script_path.MapPathToFilesystem();
+
+	return script_path;
+}
+
+int LUA_LegoLoader(lua_State* L)
+{
+	std::string path = sol::stack::get<std::string>(L, 1);
+
+	MxString script_path = GetScriptPath(path.c_str());
+
+	if (luaL_loadfile(L, script_path.GetData()) != LUA_OK) {
+		return 1;
+	}
+
+	return 1;
+}
 void LegoOmni::SetupLuaState()
 {
 	m_lua = sol::state();
-	m_lua.open_libraries(sol::lib::base, sol::lib::table, sol::lib::string, sol::lib::math);
+	m_lua.open_libraries(sol::lib::base, sol::lib::table, sol::lib::string, sol::lib::math, sol::lib::package);
+
+	m_lua.clear_package_loaders();
+	m_lua.add_package_loader(LUA_LegoLoader);
+
+	m_lua["package"]["loadlib"] = nullptr;
+
 	m_lua.set_function("ShowMessageBox", LUA_ShowMessageBox);
 
 	MxStreamer_SolWrap(m_lua);
