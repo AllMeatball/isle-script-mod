@@ -35,24 +35,76 @@ int LegoLua_Loader(lua_State* L)
 
 void LegoLua_LoadEnums(sol::state &p_lua)
 {
-	sol::usertype<LegoEventNotificationParam> eventnotif_type = p_lua.new_usertype<LegoEventNotificationParam>(
-		"LegoEventNotificationParam",
+	p_lua["MESSAGEBOX_ERROR"] = SDL_MESSAGEBOX_ERROR;
+	p_lua["MESSAGEBOX_WARNING"] = SDL_MESSAGEBOX_WARNING;
+	p_lua["MESSAGEBOX_INFORMATION"] = SDL_MESSAGEBOX_INFORMATION;
+	p_lua["MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT"] = SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT;
+	p_lua["MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT"] = SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT;
 
-		"GetNotification",
-		&LegoEventNotificationParam::GetNotification,
+	p_lua.new_enum(
+		"WorldId",
 
-		"GetROI",
-		&LegoEventNotificationParam::GetROI,
+		"e_undefined",
+		LegoOmni::World::e_undefined,
 
-		"GetKey",
-		&LegoEventNotificationParam::GetKey,
+		"e_act1",
+		LegoOmni::World::e_act1,
 
-		"GetX",
-		&LegoEventNotificationParam::GetX,
+		"e_imain",
+		LegoOmni::World::e_imain,
 
-		"GetY",
-		&LegoEventNotificationParam::GetY
+		"e_icube",
+		LegoOmni::World::e_icube,
+
+		"e_ireg",
+		LegoOmni::World::e_ireg,
+
+		"e_ielev",
+		LegoOmni::World::e_ielev,
+
+		"e_iisle",
+		LegoOmni::World::e_iisle,
+
+		"e_hosp",
+		LegoOmni::World::e_hosp,
+
+		"e_police",
+		LegoOmni::World::e_police,
+
+		"e_gmain",
+		LegoOmni::World::e_gmain,
+
+		"e_bldh",
+		LegoOmni::World::e_bldh,
+
+		"e_bldd",
+		LegoOmni::World::e_bldd,
+
+		"e_bldj",
+		LegoOmni::World::e_bldj,
+
+		"e_bldr",
+		LegoOmni::World::e_bldr,
+
+		"e_racc",
+		LegoOmni::World::e_racc,
+
+		"e_racj",
+		LegoOmni::World::e_racj,
+
+		"e_act2",
+		LegoOmni::World::e_act2,
+
+		"e_act3",
+		LegoOmni::World::e_act3,
+
+		"e_test",
+		LegoOmni::World::e_test,
+
+		"e_numWorlds",
+		LegoOmni::World::e_numWorlds
 	);
+
 
 	p_lua.new_enum(
 		"LegoEventNotificationButton",
@@ -143,9 +195,43 @@ void LegoLua_LoadEnums(sol::state &p_lua)
 		NotificationId::c_notificationTransitioned
 	);
 
-	p_lua["MESSAGEBOX_ERROR"] = SDL_MESSAGEBOX_ERROR;
-	p_lua["MESSAGEBOX_WARNING"] = SDL_MESSAGEBOX_WARNING;
-	p_lua["MESSAGEBOX_INFORMATION"] = SDL_MESSAGEBOX_INFORMATION;
-	p_lua["MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT"] = SDL_MESSAGEBOX_BUTTONS_LEFT_TO_RIGHT;
-	p_lua["MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT"] = SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT;
+	p_lua.new_enum(
+		"ActionType",
+
+		"e_none",
+		Extra::ActionType::e_none,
+
+		"e_opendisk",
+		Extra::ActionType::e_opendisk,
+
+		"e_openram",
+		Extra::ActionType::e_openram,
+
+		"e_close",
+		Extra::ActionType::e_close,
+
+		"e_start",
+		Extra::ActionType::e_start,
+
+		"e_stop",
+		Extra::ActionType::e_stop,
+
+		"e_run",
+		Extra::ActionType::e_run,
+
+		"e_exit",
+		Extra::ActionType::e_exit,
+
+		"e_enable",
+		Extra::ActionType::e_enable,
+
+		"e_disable",
+		Extra::ActionType::e_disable,
+
+		"e_notify",
+		Extra::ActionType::e_notify,
+
+		"e_unknown",
+		Extra::ActionType::e_unknown
+	);
 }
