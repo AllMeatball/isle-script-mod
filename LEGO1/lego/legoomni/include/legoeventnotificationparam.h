@@ -76,7 +76,8 @@ protected:
 	LegoROI* m_roi;    // 0x1c
 };
 
-inline void LegoEventNotificationParam_SolWrap(sol::state& p_lua)
+#ifdef LEGO1_DLL
+static void LegoEventNotificationParam_SolWrap(sol::state& p_lua)
 {
 	sol::usertype<LegoEventNotificationParam> eventnotif_type = p_lua.new_usertype<LegoEventNotificationParam>(
 		"LegoEventNotificationParam",
@@ -97,6 +98,7 @@ inline void LegoEventNotificationParam_SolWrap(sol::state& p_lua)
 		&LegoEventNotificationParam::GetY
 	);
 }
+#endif
 
 // SYNTHETIC: LEGO1 0x10028770
 // LegoEventNotificationParam::`scalar deleting destructor'

@@ -124,7 +124,7 @@ private:
 
 #ifdef LEGO1_DLL
 #include <sol/sol.hpp>
-inline void MxStreamer_SolWrap(sol::state& p_lua)
+static void MxStreamer_SolWrap(sol::state& p_lua)
 {
 	sol::usertype<MxStreamer> streamer_type = p_lua.new_usertype<MxStreamer>("MxStreamer", "Open", &MxStreamer::Open);
 	p_lua["Streamer"] = &Streamer; // Create Streamer function
