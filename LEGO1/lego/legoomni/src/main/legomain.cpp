@@ -646,6 +646,8 @@ void LegoOmni::SetupLuaState()
 	sol::usertype<MxAtomId> atomid_type =
 		m_lua.new_usertype<MxAtomId>("MxAtomId", sol::constructors<MxAtomId(const char*, LookupMode)>());
 
+	LegoEventNotificationParam_SolWrap(m_lua);
+
 	MxStreamer_SolWrap(m_lua);
 	MxStreamController_SolWrap(m_lua);
 
