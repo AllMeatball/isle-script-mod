@@ -647,6 +647,7 @@ void LegoOmni::SetupLuaState()
 	m_lua.add_package_loader(LegoLua_Loader);
 
 	m_lua["package"]["loadlib"] = nullptr;
+	m_lua["package"]["path"] = "./?.lua;./?/init.lua";
 
 	m_lua.set_function("ShowMessageBox", LegoLua_API_ShowMessageBox);
 

@@ -1,18 +1,67 @@
 #include "legolua.h"
 
+#include <SDL3/SDL.h>
+
 #include "misc.h"
 #include "compat.h"
 #include "legoeventnotificationparam.h"
 
+// (For single character delimiter) by Quonux and Arafat Hasan https://stackoverflow.com/a/46931770 under CC BY-SA 4.0
+std::vector<std::string> stringSplit(const std::string &s, char delim) {
+	std::vector<std::string> result;
+	std::stringstream ss (s);
+	std::string item;
+
+	while (getline(ss, item, delim)) {
+		result.push_back(item);
+	}
+
+	return result;
+}
+
+// (For single character delimiter) by Quonux and Arafat Hasan https://stackoverflow.com/a/46931770 under CC BY-SA 4.0*
+// *modifed into another function
+std::string stringReplaceChar(const std::string &s, char delim, std::string replacement) {
+	std::string result;
+
+	for (char c : s) {
+		if (c == delim) {
+			result += replacement;
+			continue;
+		}
+
+		result += c;
+	}
+
+	return result;
+}
+
 MxString LegoLua_GetScriptPath(const char* p_path)
 {
-	MxString script_path(Lego()->GetHD());
-	script_path += "\\lua\\";
-	script_path += p_path;
-	script_path += ".lua";
-	script_path.MapPathToFilesystem();
+	// TODO: maybe use physfs to avoid the weird pathing
+	sol::state &lua = Lego()->m_lua;
+	std::string pkg_path = lua["package"]["path"];
 
-	return script_path;
+	std::vector<std::string> pkg_paths = stringSplit(pkg_path, ';');
+
+	for (std::string pkg_path : pkg_paths) {
+		std::string script_path = stringReplaceChar(pkg_path, '?', p_path);
+
+		MxString full_script_path(Lego()->GetHD());
+		full_script_path += "/lua/";
+		full_script_path += script_path.c_str();
+
+		full_script_path.MapPathToFilesystem();
+
+		if (!SDL_GetPathInfo(full_script_path.GetData(), nullptr))
+			continue;
+
+		// SDL_Log("%s: %s", pkg_path.c_str(), full_script_path.GetData());
+
+		return full_script_path;
+	}
+
+	return "";
 }
 
 bool LegoLua_API_ShowMessageBox(int flags, const char* message)
