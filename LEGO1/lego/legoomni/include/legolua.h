@@ -14,5 +14,6 @@ bool LegoLua_API_ShowMessageBox(int flags, const char* message);
 int LegoLua_Loader(lua_State* L);
 
 void LegoLua_LoadEnums(sol::state &p_lua);
+void LegoLua_BindScripts();
 
 #endif

@@ -664,6 +664,7 @@ void LegoOmni::SetupLuaState()
 	m_lua["LEGO"] = this;
 
 	LegoLua_LoadEnums(m_lua);
+	LegoLua_BindScripts();
 
 	m_lua["InvokeAction"] = &InvokeAction;
 
