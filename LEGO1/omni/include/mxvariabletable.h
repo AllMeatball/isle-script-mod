@@ -6,6 +6,9 @@
 #include "mxtypes.h"
 #include "mxvariable.h"
 
+#include <sol/sol.hpp>
+#include <sol/state.hpp>
+
 // VTABLE: LEGO1 0x100dc1c8
 // VTABLE: BETA10 0x101c1c78
 // SIZE 0x28
@@ -14,7 +17,7 @@ public:
 	// FUNCTION: BETA10 0x10130e50
 	MxVariableTable() { SetDestroy(Destroy); }
 	LEGO1_EXPORT void SetVariable(const char* p_key, const char* p_value);
-	void SetVariable(MxVariable* p_var);
+	void SetVariableFromVarObject(MxVariable* p_var);
 	const char* GetVariable(const char* p_key);
 
 	// FUNCTION: LEGO1 0x100afdb0
@@ -28,6 +31,20 @@ public:
 	// SYNTHETIC: BETA10 0x10130f20
 	// MxVariableTable::`scalar deleting destructor'
 };
+
+static void MxVariableTable_SolWrap(sol::state &p_lua) {
+	p_lua["VariableTable"] = &VariableTable;
+
+	sol::usertype<MxVariableTable> vartable_type = p_lua.new_usertype<MxVariableTable>(
+		"MxVariableTable",
+
+		"SetVariable",
+		&MxVariableTable::SetVariable,
+
+		"GetVariable",
+		&MxVariableTable::GetVariable
+	);
+}
 
 // VTABLE: LEGO1 0x100dc1b0
 // VTABLE: BETA10 0x101c1cd0

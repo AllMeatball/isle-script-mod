@@ -64,7 +64,7 @@ LegoCharacterManager::LegoCharacterManager()
 	Init(); // DECOMP: inlined here in BETA10
 
 	m_customizeAnimFile = new CustomizeAnimFileVariable("CUSTOMIZE_ANIM_FILE");
-	VariableTable()->SetVariable(m_customizeAnimFile);
+	VariableTable()->SetVariableFromVarObject(m_customizeAnimFile);
 }
 
 // FUNCTION: LEGO1 0x10083180

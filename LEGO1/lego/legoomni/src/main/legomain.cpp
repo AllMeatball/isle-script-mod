@@ -236,25 +236,25 @@ MxResult LegoOmni::Create(MxOmniCreateParam& p_param)
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to create VisibilityVariable");
 		goto done;
 	}
-	m_variableTable->SetVariable(variable);
+	m_variableTable->SetVariableFromVarObject(variable);
 
 	if (!(variable = new CameraLocationVariable())) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to create CameraLocationVariable");
 		goto done;
 	}
-	m_variableTable->SetVariable(variable);
+	m_variableTable->SetVariableFromVarObject(variable);
 
 	if (!(variable = new CursorVariable())) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to create CursorVariable");
 		goto done;
 	}
-	m_variableTable->SetVariable(variable);
+	m_variableTable->SetVariableFromVarObject(variable);
 
 	if (!(variable = new WhoAmIVariable())) {
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to create WhoAmIVariable");
 		goto done;
 	}
-	m_variableTable->SetVariable(variable);
+	m_variableTable->SetVariableFromVarObject(variable);
 
 	CreateScripts();
 	IslePathActor::RegisterSpawnLocations();
@@ -655,6 +655,8 @@ void LegoOmni::SetupLuaState()
 		m_lua.new_usertype<MxAtomId>("MxAtomId", sol::constructors<MxAtomId(const char*, LookupMode)>());
 
 	LegoEventNotificationParam_SolWrap(m_lua);
+
+	MxVariableTable_SolWrap(m_lua);
 
 	MxStreamer_SolWrap(m_lua);
 	MxStreamController_SolWrap(m_lua);

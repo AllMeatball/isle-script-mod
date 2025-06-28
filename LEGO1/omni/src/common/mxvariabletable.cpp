@@ -40,7 +40,7 @@ void MxVariableTable::SetVariable(const char* p_key, const char* p_value)
 
 // FUNCTION: LEGO1 0x100b7740
 // FUNCTION: BETA10 0x1012a629
-void MxVariableTable::SetVariable(MxVariable* p_var)
+void MxVariableTable::SetVariableFromVarObject(MxVariable* p_var)
 {
 	MxHashTableCursor<MxVariable*> cursor(this);
 

@@ -174,13 +174,13 @@ LegoGameState::LegoGameState()
 	SetCurrentAct(e_act1);
 
 	m_backgroundColor = new LegoBackgroundColor("backgroundcolor", "set 56 54 68");
-	VariableTable()->SetVariable(m_backgroundColor);
+	VariableTable()->SetVariableFromVarObject(m_backgroundColor);
 
 	m_tempBackgroundColor = new LegoBackgroundColor("tempBackgroundColor", "set 56 54 68");
-	VariableTable()->SetVariable(m_tempBackgroundColor);
+	VariableTable()->SetVariableFromVarObject(m_tempBackgroundColor);
 
 	m_fullScreenMovie = new LegoFullScreenMovie("fsmovie", "disable");
-	VariableTable()->SetVariable(m_fullScreenMovie);
+	VariableTable()->SetVariableFromVarObject(m_fullScreenMovie);
 
 	VariableTable()->SetVariable("lightposition", "2");
 	SerializeScoreHistory(LegoFile::c_read);
