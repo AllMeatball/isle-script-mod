@@ -263,6 +263,7 @@ private:
 
 	std::map<std::string, LegoLua_CallbackItem> m_luaCallbacks;
 	void SetupLuaState();
+	void NewCallback(std::string name);
 
 public:
 	MxBool m_unk0x13c; // 0x13c

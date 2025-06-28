@@ -630,6 +630,14 @@ void LegoOmni::Resume()
 	SetAppCursor(e_cursorArrow);
 }
 
+void LegoOmni::NewCallback(std::string name)
+{
+	m_luaCallbacks[name] = {
+		.halted = false,
+		.function = sol::nil
+	};
+}
+
 void LegoOmni::SetupLuaState()
 {
 	m_lua = sol::state();
@@ -669,8 +677,6 @@ void LegoOmni::SetupLuaState()
 	m_lua["InvokeAction"] = &InvokeAction;
 
 	// Add Callbacks
-	m_luaCallbacks["ProcessOneEvent"] = {
-		.halted = false,
-		.function = sol::nil
-	};
+	NewCallback("ProcessOneEvent");
+	NewCallback("Tickle");
 }

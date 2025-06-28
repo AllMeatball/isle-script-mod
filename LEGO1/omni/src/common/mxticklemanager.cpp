@@ -5,6 +5,8 @@
 #include "mxtimer.h"
 #include "mxtypes.h"
 
+#include "legolua.h"
+
 #include <assert.h>
 
 #define TICKLE_MANAGER_FLAG_DESTROY 0x01
@@ -37,6 +39,8 @@ MxResult MxTickleManager::Tickle()
 {
 	MxTime time = Timer()->GetTime();
 	MxTickleClientPtrList::iterator it;
+
+	Lego()->RunLuaCallback("Tickle");
 
 	for (it = m_clients.begin(); !(it == m_clients.end());) {
 		MxTickleClient* client = *it;
