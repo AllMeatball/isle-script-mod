@@ -235,6 +235,9 @@ public:
 		}
 	}
 
+	void SetVersion10(MxBool p_version10) { m_version10 = p_version10; }
+	MxBool IsVersion10() { return m_version10; }
+
 	// SYNTHETIC: LEGO1 0x10058b30
 	// LegoOmni::`scalar deleting destructor'
 
@@ -256,6 +259,7 @@ private:
 	MxDSAction m_action;                         // 0xa0
 	MxBackgroundAudioManager* m_bkgAudioManager; // 0x134
 	MxTransitionManager* m_transitionManager;    // 0x138
+	MxBool m_version10;
 
 	std::map<std::string, LegoLua_CallbackItem> m_luaCallbacks;
 	void SetupLuaState();
