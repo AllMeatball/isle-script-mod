@@ -464,6 +464,9 @@ target_sources(lego1 PRIVATE
   LEGO1/lego/legoomni/src/worlds/registrationbook.cpp
   LEGO1/lego/legoomni/src/worlds/score.cpp
   LEGO1/modeldb/modeldb.cpp
+
+  # Lua Stuff
+  LEGO1/lego/legoomni/src/lua/legolua.cpp
 )
 target_link_libraries(lego1 PRIVATE Vec::Vec)
 if (NOT ISLE_MINIWIN)
