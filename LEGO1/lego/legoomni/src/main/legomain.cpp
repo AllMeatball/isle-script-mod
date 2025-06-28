@@ -656,6 +656,7 @@ void LegoOmni::SetupLuaState()
 
 	LegoEventNotificationParam_SolWrap(m_lua);
 
+	MxTimer_SolWrap(m_lua);
 	MxVariableTable_SolWrap(m_lua);
 
 	MxStreamer_SolWrap(m_lua);
