@@ -135,7 +135,7 @@ private:
 #ifdef LEGO1_DLL
 #include <sol/sol.hpp>
 
-inline void VideoManager_SolWrap(sol::state &p_lua)
+static void VideoManager_SolWrap(sol::state &p_lua)
 {
 	sol::usertype<LegoVideoManager> videomanager_type = p_lua.new_usertype<LegoVideoManager>(
 		"LegoVideoManager",
