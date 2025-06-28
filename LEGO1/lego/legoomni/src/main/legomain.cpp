@@ -665,7 +665,7 @@ void LegoOmni::SetupLuaState()
 
 	LegoLua_LoadEnums(m_lua);
 
-	m_lua["InkoveAction"] = &InvokeAction;
+	m_lua["InvokeAction"] = &InvokeAction;
 
 	// Add Callbacks
 	m_luaCallbacks["ProcessOneEvent"] = {
