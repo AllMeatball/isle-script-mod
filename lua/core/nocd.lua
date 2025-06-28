@@ -1,6 +1,6 @@
 local stream = Streamer():Open("\\lego\\scripts\\nocd", 0)
 if not stream then
-	ShowMessageBox(MESSAGEBOX_INFORMATION, "Failed to open NOCD.si: Streamer failed to load");
+	ShowMessageBox(MESSAGEBOX_ERROR, "Failed to open NOCD.si: Streamer failed to load");
 	return
 end
 
