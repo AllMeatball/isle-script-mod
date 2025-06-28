@@ -93,6 +93,7 @@ MxAtomId* g_nocdSourceName = NULL;
 // FUNCTION: LEGO1 0x100528e0
 void CreateScripts()
 {
+	// TODO: create these directly in lua or use C++ and bind that via sol2
 	g_copterScript = new MxAtomId("\\lego\\scripts\\build\\copter", e_lowerCase2);
 	g_dunecarScript = new MxAtomId("\\lego\\scripts\\build\\dunecar", e_lowerCase2);
 	g_jetskiScript = new MxAtomId("\\lego\\scripts\\build\\jetski", e_lowerCase2);
@@ -121,6 +122,37 @@ void CreateScripts()
 	g_sndAnimScript = new MxAtomId("\\lego\\scripts\\sndanim", e_lowerCase2);
 	g_creditsScript = new MxAtomId("\\lego\\scripts\\credits", e_lowerCase2);
 	g_nocdSourceName = new MxAtomId("\\lego\\scripts\\nocd", e_lowerCase2);
+
+	sol::state &lua = Lego()->m_lua;
+
+	lua["g_copterScript"]   = g_copterScript;
+	lua["g_dunecarScript"]  = g_dunecarScript;
+	lua["g_jetskiScript"]   = g_jetskiScript;
+	lua["g_racecarScript"]  = g_racecarScript;
+	lua["g_carraceScript"]  = g_carraceScript;
+	lua["g_carracerScript"] = g_carracerScript;
+	lua["g_jetraceScript"]  = g_jetraceScript;
+	lua["g_jetracerScript"] = g_jetracerScript;
+	lua["g_isleScript"]     = g_isleScript;
+	lua["g_elevbottScript"] = g_elevbottScript;
+	lua["g_infodoorScript"] = g_infodoorScript;
+	lua["g_infomainScript"] = g_infomainScript;
+	lua["g_infoscorScript"] = g_infoscorScript;
+	lua["g_regbookScript"]  = g_regbookScript;
+	lua["g_histbookScript"] = g_histbookScript;
+	lua["g_hospitalScript"] = g_hospitalScript;
+	lua["g_policeScript"]   = g_policeScript;
+	lua["g_garageScript"]   = g_garageScript;
+	lua["g_act2mainScript"] = g_act2mainScript;
+	lua["g_act3Script"]     = g_act3Script;
+	lua["g_jukeboxScript"]  = g_jukeboxScript;
+	lua["g_pz5Script"]      = g_pz5Script;
+	lua["g_introScript"]    = g_introScript;
+	lua["g_testScript"]     = g_testScript;
+	lua["g_jukeboxwScript"] = g_jukeboxwScript;
+	lua["g_sndAnimScript"]  = g_sndAnimScript;
+	lua["g_creditsScript"]  = g_creditsScript;
+	lua["g_nocdSourceName"] = g_nocdSourceName;
 }
 
 // FUNCTION: LEGO1 0x100530c0
