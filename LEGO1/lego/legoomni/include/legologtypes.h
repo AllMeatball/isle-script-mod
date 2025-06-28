@@ -1,0 +1,10 @@
+#ifndef LEGOLOGTYPES_H
+#define LEGOLOGTYPES_H
+
+#include <SDL3/SDL.h>
+
+enum {
+	LEGO_LOG_CATEGORY_LUA = SDL_LOG_CATEGORY_CUSTOM,
+};
+
+#endif

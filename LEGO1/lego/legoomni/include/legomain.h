@@ -2,12 +2,15 @@
 #define LEGOMAIN_H
 
 #include "compat.h"
+#include "legologtypes.h"
+#include "legolua.h"
 #include "lego1_export.h"
 #include "legoutils.h"
 #include "mxdsaction.h"
 #include "mxomni.h"
 
 #include <SDL3/SDL_events.h>
+#include <SDL3/SDL_log.h>
 #include <SDL3/SDL_timer.h>
 
 #define SOL_ALL_SAFETIES_ON 1
@@ -203,6 +206,35 @@ public:
 		SDL_PushEvent(&event);
 	}
 
+	template <typename... Args>
+	void RunLuaCallback(std::string name, Args&&... args) {
+		auto item = m_luaCallbacks.find(name);
+		LegoLua_CallbackItem *callback_entry;
+
+		if (item == m_luaCallbacks.end()) {
+			SDL_LogError(LEGO_LOG_CATEGORY_LUA, "Failed to find callback '%s'", name.c_str());
+			return;
+		}
+
+		callback_entry = &item->second;
+		if (callback_entry->halted)
+			return;
+
+		if (!callback_entry->function.valid())
+			callback_entry->function = m_lua["CB_" + name];
+
+		sol::function_result result = callback_entry->function(std::forward<Args>(args)...);
+
+		if (!result.valid()) {
+			sol::error err = result;
+			std::string what = err.what();
+			SDL_LogError(LEGO_LOG_CATEGORY_LUA, "Failed to start callback '%s': %s", name.c_str(), what.c_str());
+			SDL_LogWarn(LEGO_LOG_CATEGORY_LUA, "Halting callback to reduce console spam");
+			callback_entry->halted = true;
+			return;
+		}
+	}
+
 	// SYNTHETIC: LEGO1 0x10058b30
 	// LegoOmni::`scalar deleting destructor'
 
@@ -224,6 +256,8 @@ private:
 	MxDSAction m_action;                         // 0xa0
 	MxBackgroundAudioManager* m_bkgAudioManager; // 0x134
 	MxTransitionManager* m_transitionManager;    // 0x138
+
+	std::map<std::string, LegoLua_CallbackItem> m_luaCallbacks;
 	void SetupLuaState();
 
 public:

@@ -8,6 +8,8 @@
 #include "legoeventnotificationparam.h"
 #include "legogamestate.h"
 #include "legoinputmanager.h"
+#include "legologtypes.h"
+#include "legolua.h"
 #include "legoobjectfactory.h"
 #include "legoplantmanager.h"
 #include "legosoundmanager.h"
@@ -34,8 +36,7 @@
 #include "viewmanager/viewmanager.h"
 
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_log.h>
-#include <SDL3/SDL_stdinc.h>
+#include <sol/forward.hpp>
 
 DECOMP_SIZE_ASSERT(LegoOmni, 0x140)
 DECOMP_SIZE_ASSERT(LegoOmni::WorldContainer, 0x1c)
@@ -658,6 +659,7 @@ int LUA_LegoLoader(lua_State* L)
 
 	return 1;
 }
+
 void LegoOmni::SetupLuaState()
 {
 	m_lua = sol::state();
@@ -804,4 +806,10 @@ void LegoOmni::SetupLuaState()
 	m_lua["MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT"] = SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT;
 
 	m_lua["InkoveAction"] = &InvokeAction;
+
+	// Add Callbacks
+	m_luaCallbacks["ProcessOneEvent"] = {
+		.halted = false,
+		.function = sol::nil
+	};
 }

@@ -10,6 +10,10 @@
 #include "mxautolock.h"
 #include "mxdebug.h"
 #include "roi/legoroi.h"
+#include "legologtypes.h"
+
+
+#include <SDL3/SDL.h>
 
 DECOMP_SIZE_ASSERT(LegoInputManager, 0x338)
 DECOMP_SIZE_ASSERT(LegoNotifyList, 0x18)
@@ -314,6 +318,8 @@ void LegoInputManager::ProcessEvents()
 MxBool LegoInputManager::ProcessOneEvent(LegoEventNotificationParam& p_param)
 {
 	MxBool processRoi;
+
+	Lego()->RunLuaCallback("ProcessOneEvent", p_param);
 
 	if (p_param.GetNotification() == c_notificationKeyPress) {
 		if (!Lego()->IsPaused() || p_param.GetKey() == SDLK_PAUSE) {

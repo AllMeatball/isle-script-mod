@@ -3,11 +3,6 @@ GLOBALS = {
     mouse_y = 0,
 }
 
--- ShowMessageBox(
---     MESSAGEBOX_INFORMATION,
---     "Scene Change"
--- )
-
 function CB_ProcessOneEvent(event)
     if event:GetNotification() == NotificationId.c_notificationKeyPress then
         if event:GetKey() == 0x0000006d then
