@@ -118,6 +118,8 @@ public:
 	// FUNCTION: BETA10 0x100c9a10
 	int GetDefaultDeadZone() { return g_defdeadZone; }
 
+	void Unk0x5dHack(MxBool p_unk0x5d) { m_unk0x5d = p_unk0x5d; }
+
 	// SYNTHETIC: LEGO1 0x10054c10
 	// LegoNavController::`scalar deleting destructor'
 

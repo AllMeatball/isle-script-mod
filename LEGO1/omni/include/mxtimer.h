@@ -46,32 +46,6 @@ private:
 	static MxLong g_lastTimeTimerStarted;
 };
 
-#ifdef LEGO1_DLL
-#include <sol/sol.hpp>
-static void MxTimer_SolWrap(sol::state &p_lua) {
-	p_lua["Timer"] = &Timer;
-	sol::usertype<MxTimer> timer_type = p_lua.new_usertype<MxTimer>(
-		"MxTimer",
-		sol::constructors<MxTimer()>(),
-
-		"GetTime",
-		&MxTimer::GetTime,
-
-		"Start",
-		&MxTimer::Start,
-
-		"Stop",
-		&MxTimer::Stop,
-
-		"GetRealTime",
-		&MxTimer::GetRealTime,
-
-		"InitLastTimeCalculated",
-		&MxTimer::InitLastTimeCalculated
-	);
-}
-#endif
-
 // SYNTHETIC: BETA10 0x1012bfc0
 // MxTimer::~MxTimer
 

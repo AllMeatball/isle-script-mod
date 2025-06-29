@@ -9,6 +9,7 @@
 #include "legogamestate.h"
 #include "legoinputmanager.h"
 #include "legolua.h"
+#include "legoluawraps.h"
 #include "legoobjectfactory.h"
 #include "legoplantmanager.h"
 #include "legosoundmanager.h"
@@ -638,6 +639,10 @@ void LegoOmni::NewCallback(std::string name)
 	};
 }
 
+InfocenterState* GetInfocenterState() {
+	return (InfocenterState*)GameState()->GetState("InfocenterState");
+}
+
 void LegoOmni::SetupLuaState()
 {
 	m_lua = sol::state();
@@ -656,15 +661,18 @@ void LegoOmni::SetupLuaState()
 		m_lua.new_usertype<MxAtomId>("MxAtomId", sol::constructors<MxAtomId(const char*, LookupMode)>());
 
 	LegoEventNotificationParam_SolWrap(m_lua);
+	LegoNavController_SolWrap(m_lua);
 
 	MxTimer_SolWrap(m_lua);
+	MxTransitionManager_SolWrap(m_lua);
+	MxBackgroundAudioManager_SolWrap(m_lua);
 	MxVariableTable_SolWrap(m_lua);
 
 	MxStreamer_SolWrap(m_lua);
 	MxStreamController_SolWrap(m_lua);
 
 	LegoGameState_SolWrap(m_lua);
-	VideoManager_SolWrap(m_lua);
+	LegoVideoManager_SolWrap(m_lua);
 
 	MxDSAction_SolWrap(m_lua);
 
@@ -672,7 +680,16 @@ void LegoOmni::SetupLuaState()
 		"LegoOmni",
 
 		"Start",
-		&LegoOmni::Start
+		&LegoOmni::Start,
+
+		"Pause",
+		&LegoOmni::Pause,
+
+		"Resume",
+		&LegoOmni::Resume,
+
+		"IsPaused",
+		&LegoOmni::IsPaused
 	);
 
 	m_lua["LEGO"] = this;
@@ -682,8 +699,12 @@ void LegoOmni::SetupLuaState()
 
 	m_lua["InvokeAction"] = &InvokeAction;
 	m_lua["SetLightPosition"] = &SetLightPosition;
+	m_lua["CurrentWorld"] = &CurrentWorld;
+	m_lua["GetInfocenterState"] = &GetInfocenterState;
 
 	// Add Callbacks
 	NewCallback("ProcessOneEvent");
 	NewCallback("Tickle");
+
+	NewCallback("NavController_Notify");
 }

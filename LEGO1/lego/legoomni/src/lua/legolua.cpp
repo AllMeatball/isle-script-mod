@@ -283,6 +283,31 @@ void LegoLua_LoadEnums(sol::state &p_lua)
 		"e_unknown",
 		Extra::ActionType::e_unknown
 	);
+
+	p_lua.new_enum(
+		"TransitionType",
+
+		"e_idle",
+		MxTransitionManager::e_idle,
+
+		"e_noAnimation",
+		MxTransitionManager::e_noAnimation,
+
+		"e_dissolve",
+		MxTransitionManager::e_dissolve,
+
+		"e_mosaic",
+		MxTransitionManager::e_mosaic,
+
+		"e_wipeDown",
+		MxTransitionManager::e_wipeDown,
+
+		"e_windows",
+		MxTransitionManager::e_windows,
+
+		"e_broken",
+		MxTransitionManager::e_broken
+	);
 }
 
 void LegoLua_BindScripts() {

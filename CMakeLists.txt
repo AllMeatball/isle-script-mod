@@ -467,6 +467,7 @@ target_sources(lego1 PRIVATE
 
   # Lua Stuff
   LEGO1/lego/legoomni/src/lua/legolua.cpp
+  LEGO1/lego/legoomni/src/lua/legoluawraps.cpp
 )
 target_link_libraries(lego1 PRIVATE Vec::Vec)
 if (NOT ISLE_MINIWIN)

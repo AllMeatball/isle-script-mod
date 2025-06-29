@@ -132,39 +132,6 @@ private:
 	friend class DebugViewer;
 };
 
-#ifdef LEGO1_DLL
-#include <sol/sol.hpp>
-
-static void VideoManager_SolWrap(sol::state &p_lua)
-{
-	sol::usertype<LegoVideoManager> videomanager_type = p_lua.new_usertype<LegoVideoManager>(
-		"LegoVideoManager",
-		"EnableFullScreenMovieWithScale",
-		&LegoVideoManager::EnableFullScreenMovieWithScale,
-
-		"SetRender3D",
-		&LegoVideoManager::SetRender3D,
-
-		"GetRender3D",
-		&LegoVideoManager::GetRender3D,
-
-		"SetSkyColor",
-		&LegoVideoManager::SetSkyColor,
-
-		"ToggleFPS",
-		&LegoVideoManager::ToggleFPS,
-
-		"Get3DManager",
-		&LegoVideoManager::Get3DManager,
-
-		"GetRenderer",
-		&LegoVideoManager::GetRenderer
-	);
-
-	p_lua["VideoManager"] = &VideoManager;
-}
-#endif
-
 // SYNTHETIC: LEGO1 0x1007ab20
 // LegoVideoManager::`scalar deleting destructor'
 

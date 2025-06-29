@@ -134,25 +134,4 @@ protected:
 	MxLong m_unk0x90;             // 0x90
 };
 
-#ifdef LEGO1_DLL
-#include <sol/sol.hpp>
-
-static void MxDSAction_SolWrap(sol::state& p_lua)
-{
-	sol::usertype<MxDSAction> mxdsaction_type = p_lua.new_usertype<MxDSAction>(
-		"MxDSAction",
-		sol::constructors<MxDSAction()>(),
-
-		"SetAtomId",
-		&MxDSAction::SetAtomId,
-
-		"SetUnknown24",
-		&MxDSAction::SetUnknown24,
-
-		"SetObjectId",
-		&MxDSAction::SetObjectId
-	);
-}
-#endif
-
 #endif // MXDSACTION_H
