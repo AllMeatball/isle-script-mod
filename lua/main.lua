@@ -1,18 +1,29 @@
+require('core')
 GLOBALS = {
     mouse_x = 0,
     mouse_y = 0,
 }
 
+local current_tick = Timer():GetTime()
+local new_tick = current_time
+
+local TIME = 0
+
+function CB_Tickle()
+    new_tick = Timer():GetTime()
+    dt = 1/(new_tick - current_tick)
+    current_tick = new_tick
+
+    TIME = TIME + dt
+end
+
 function CB_ProcessOneEvent(event)
     if event:GetNotification() == NotificationId.c_notificationKeyPress then
-        if event:GetKey() == 0x0000006d then
---             print('m')
-            ShowMessageBox(
-                MESSAGEBOX_INFORMATION,
-                "Mouse Position X=" ..GLOBALS.mouse_x..", Y="..GLOBALS.mouse_y
-            )
-            -- LEGO.GetGameState().SwitchArea(Area.e_police)
---             InvokeAction(ActionType.e_openram, g_policeScript, 0)
+        if event:GetKey() == SDLK_M then
+            InvokeAction(ActionType.e_openram, g_nocdSourceName, 0, nil)
+        end
+        if event:GetKey() == SDLK_C then
+            VideoManager():SetSkyColor(math.random(0, 255), math.random(0, 255), math.random(0, 255))
         end
     end
 

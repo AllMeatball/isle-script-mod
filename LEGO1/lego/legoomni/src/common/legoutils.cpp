@@ -606,30 +606,17 @@ MxBool FUN_1003ef60()
 // FUNCTION: LEGO1 0x1003f050
 MxS32 UpdateLightPosition(MxS32 p_increase)
 {
-	MxS32 lightPosition = atoi(VariableTable()->GetVariable("lightposition"));
-
-	// Only ever increases by 1 irrespective of p_increase
-	if (p_increase > 0) {
-		lightPosition += 1;
-		if (lightPosition > 5) {
-			lightPosition = 5;
-		}
+	sol::state &lua = Lego()->m_lua;
+	try {
+		sol::function func = Lego()->m_lua["UpdateLightPosition"];
+		return func(p_increase);
 	}
-	else {
-		lightPosition -= 1;
-		if (lightPosition < 0) {
-			lightPosition = 0;
-		}
+	catch (const sol::error& e) {
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", e.what());
+		return 0;
 	}
 
-	SetLightPosition(lightPosition);
-
-	char lightPositionBuffer[32];
-	sprintf(lightPositionBuffer, "%d", lightPosition);
-
-	VariableTable()->SetVariable("lightposition", lightPositionBuffer);
-
-	return lightPosition;
+	return 0;
 }
 
 // FUNCTION: LEGO1 0x1003f0d0

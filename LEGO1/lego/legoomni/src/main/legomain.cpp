@@ -681,7 +681,7 @@ void LegoOmni::SetupLuaState()
 	LegoLua_BindScripts();
 
 	m_lua["InvokeAction"] = &InvokeAction;
-	m_lua["UpdateLightPosition"] = &UpdateLightPosition;
+	m_lua["SetLightPosition"] = &SetLightPosition;
 
 	// Add Callbacks
 	NewCallback("ProcessOneEvent");
