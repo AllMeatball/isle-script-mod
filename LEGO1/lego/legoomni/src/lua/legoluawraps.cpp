@@ -1,5 +1,27 @@
 #include "legoluawraps.h"
 
+void LegoAnimationManager_SolWrap(sol::state& p_lua)
+{
+	p_lua["AnimationManager"] = &AnimationManager;
+
+	sol::usertype<LegoAnimationManager> anim_mgr_type = p_lua.new_usertype<LegoAnimationManager>(
+		"LegoAnimationManager",
+
+		"FUN_10061010",
+		&LegoAnimationManager::FUN_10061010
+	);
+}
+
+void LegoWorld_SolWrap(sol::state& p_lua)
+{
+	sol::usertype<LegoWorld> eventnotif_type = p_lua.new_usertype<LegoWorld>(
+		"LegoWorld",
+
+		"Escape",
+		&LegoWorld::Escape
+	);
+}
+
 void LegoEventNotificationParam_SolWrap(sol::state& p_lua)
 {
 	sol::usertype<LegoEventNotificationParam> eventnotif_type = p_lua.new_usertype<LegoEventNotificationParam>(
@@ -42,7 +64,10 @@ void LegoGameState_SolWrap(sol::state &p_lua)
 		"LegoGameState",
 
 		"GetBackgroundColor",
-		&LegoGameState::GetBackgroundColor
+		&LegoGameState::GetBackgroundColor,
+
+		"Save",
+		&LegoGameState::Save
 	);
 }
 
@@ -102,7 +127,7 @@ void MxTransitionManager_SolWrap(sol::state &p_lua)
 	p_lua["TransitionManager"] = &TransitionManager;
 
 	sol::usertype<MxTransitionManager> bgmgr_type = p_lua.new_usertype<MxTransitionManager>(
-		"TransitionManager",
+		"MxTransitionManager",
 
 		"StartTransition",
 		&MxTransitionManager::StartTransition

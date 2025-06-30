@@ -2,6 +2,9 @@
 #define LEGOLUAWRAPS_H
 #include <sol/sol.hpp>
 
+void LegoAnimationManager_SolWrap(sol::state& p_lua);
+void LegoWorld_SolWrap(sol::state& p_lua);
+
 void LegoEventNotificationParam_SolWrap(sol::state& p_lua);
 void LegoGameState_SolWrap(sol::state &p_lua);
 void LegoNavController_SolWrap(sol::state &p_lua);

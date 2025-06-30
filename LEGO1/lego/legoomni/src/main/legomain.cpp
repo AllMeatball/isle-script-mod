@@ -660,6 +660,13 @@ void LegoOmni::SetupLuaState()
 	sol::usertype<MxAtomId> atomid_type =
 		m_lua.new_usertype<MxAtomId>("MxAtomId", sol::constructors<MxAtomId(const char*, LookupMode)>());
 
+	sol::usertype<InfocenterState> infocenterstate_type = m_lua.new_usertype<InfocenterState>("InfocenterState");
+	infocenterstate_type["m_unk0x74"] = &InfocenterState::m_unk0x74;
+	infocenterstate_type["HasRegistered"] = &InfocenterState::HasRegistered;
+
+	LegoAnimationManager_SolWrap(m_lua);
+
+	LegoWorld_SolWrap(m_lua);
 	LegoEventNotificationParam_SolWrap(m_lua);
 	LegoNavController_SolWrap(m_lua);
 
