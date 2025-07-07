@@ -83,7 +83,7 @@ MxResult LegoWorld::Create(MxDSAction& p_dsAction)
 		}
 
 		SetCurrentWorld(this);
-		ControlManager()->FUN_10028df0(&m_controlPresenters);
+		ControlManager()->SetPresenterList(&m_controlPresenters);
 	}
 
 	SetIsWorldActive(TRUE);
@@ -98,7 +98,7 @@ void LegoWorld::Destroy(MxBool p_fromDestructor)
 	m_destroyed = TRUE;
 
 	if (CurrentWorld() == this) {
-		ControlManager()->FUN_10028df0(NULL);
+		ControlManager()->SetPresenterList(NULL);
 		SetCurrentWorld(NULL);
 	}
 
@@ -122,12 +122,12 @@ void LegoWorld::Destroy(MxBool p_fromDestructor)
 
 				animPresenter->DecrementUnknown0xd4();
 				if (animPresenter->GetUnknown0xd4() == 0) {
-					FUN_100b7220(action, MxDSAction::c_world, FALSE);
+					ApplyMask(action, MxDSAction::c_world, FALSE);
 					presenter->EndAction();
 				}
 			}
 			else {
-				FUN_100b7220(action, MxDSAction::c_world, FALSE);
+				ApplyMask(action, MxDSAction::c_world, FALSE);
 				presenter->EndAction();
 			}
 		}
@@ -143,7 +143,7 @@ void LegoWorld::Destroy(MxBool p_fromDestructor)
 			MxDSAction* action = presenter->GetAction();
 
 			if (action) {
-				FUN_100b7220(action, MxDSAction::c_world, FALSE);
+				ApplyMask(action, MxDSAction::c_world, FALSE);
 				presenter->EndAction();
 			}
 		}
@@ -159,7 +159,7 @@ void LegoWorld::Destroy(MxBool p_fromDestructor)
 
 		MxDSAction* action = presenter->GetAction();
 		if (action) {
-			FUN_100b7220(action, MxDSAction::c_world, FALSE);
+			ApplyMask(action, MxDSAction::c_world, FALSE);
 			presenter->EndAction();
 		}
 	}
@@ -724,7 +724,7 @@ void LegoWorld::Enable(MxBool p_enable)
 		}
 
 		SetCurrentWorld(this);
-		ControlManager()->FUN_10028df0(&m_controlPresenters);
+		ControlManager()->SetPresenterList(&m_controlPresenters);
 		InputManager()->SetCamera(m_cameraController);
 
 		if (m_cameraController) {
@@ -781,7 +781,7 @@ void LegoWorld::Enable(MxBool p_enable)
 		}
 
 		if (CurrentWorld() && CurrentWorld() == this) {
-			ControlManager()->FUN_10028df0(NULL);
+			ControlManager()->SetPresenterList(NULL);
 			Lego()->SetCurrentWorld(NULL);
 		}
 

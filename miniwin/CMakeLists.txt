@@ -32,7 +32,7 @@ target_compile_definitions(miniwin PRIVATE
 )
 
 find_package(OpenGL)
-if(OpenGL_FOUND)
+if(OpenGL_FOUND AND NOT WINDOWS_STORE)
   message(STATUS "Found OpenGL: enabling OpenGL 1.x renderer")
   target_sources(miniwin PRIVATE
     src/d3drm/backends/opengl1/actual.cpp
@@ -45,21 +45,44 @@ else()
 endif()
 
 find_library(OPENGL_ES2_LIBRARY NAMES GLESv2)
-if(OPENGL_ES2_LIBRARY)
+if(EMSCRIPTEN OR OPENGL_ES2_LIBRARY AND NOT WINDOWS_STORE)
   message(STATUS "Found OpenGL: enabling OpenGL ES 2.x renderer")
   target_sources(miniwin PRIVATE src/d3drm/backends/opengles2/renderer.cpp)
   target_compile_definitions(miniwin PRIVATE USE_OPENGLES2)
-  target_link_libraries(miniwin PRIVATE OpenGL::GL)
+  if(OPENGL_ES2_LIBRARY)
+    target_link_libraries(miniwin PRIVATE OpenGL::GL)
+  endif()
 else()
   message(STATUS "🧩 OpenGL ES 2.x support not enabled")
 endif()
 
-if(WIN32)
+if(NINTENDO_3DS)
+  if(ISLE_DEBUG)
+    find_library(CITRO3D_LIBRARY NAMES citro3dd)
+  else()
+    find_library(CITRO3D_LIBRARY NAMES citro3d)
+  endif()
+  if(CITRO3D_LIBRARY)
+    message(STATUS "Found citro3d: enabling Citro3D renderer")
+    target_sources(miniwin PRIVATE src/d3drm/backends/citro3d/renderer.cpp)
+    ctr_add_shader_library(vshader src/d3drm/backends/citro3d/vshader.v.pica)
+    dkp_add_embedded_binary_library(3ds_shaders vshader)
+    target_link_libraries(miniwin PRIVATE ${CITRO3D_LIBRARY} 3ds_shaders)
+  else()
+    message(STATUS "🧩 Citro3D support not enabled")
+  endif()
+endif()
+
+if(WIN32 AND NOT WINDOWS_STORE)
   target_sources(miniwin PRIVATE
     src/d3drm/backends/directx9/actual.cpp
     src/d3drm/backends/directx9/renderer.cpp
   )
   target_link_libraries(miniwin PRIVATE d3d9)
+endif()
+
+if(WINDOWS_STORE)
+  add_compile_definitions(WINDOWS_STORE)
 endif()
 
 target_compile_definitions(miniwin PUBLIC MINIWIN)

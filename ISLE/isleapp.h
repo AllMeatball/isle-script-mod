@@ -1,6 +1,7 @@
 #ifndef ISLEAPP_H
 #define ISLEAPP_H
 
+#include "cursor.h"
 #include "lego1_export.h"
 #include "legoutils.h"
 #include "mxtransitionmanager.h"
@@ -51,6 +52,7 @@ public:
 	SDL_Cursor* GetCursorNo() { return m_cursorNo; }
 	MxS32 GetDrawCursor() { return m_drawCursor; }
 	MxS32 GetGameStarted() { return m_gameStarted; }
+	MxFloat GetCursorSensitivity() { return m_cursorSensitivity; }
 
 	void SetWindowActive(MxS32 p_windowActive) { m_windowActive = p_windowActive; }
 	void SetGameStarted(MxS32 p_gameStarted) { m_gameStarted = p_gameStarted; }
@@ -58,6 +60,7 @@ public:
 	MxResult ParseArguments(int argc, char** argv);
 	MxResult VerifyFilesystem();
 	void DetectGameVersion();
+	void MoveVirtualMouseViaJoystick();
 
 private:
 	char* m_hdPath;              // 0x00
@@ -87,7 +90,12 @@ private:
 	SDL_Cursor* m_cursorBusy;    // 0x80
 	SDL_Cursor* m_cursorNo;      // 0x84
 	SDL_Cursor* m_cursorCurrent; // 0x88
+	const CursorBitmap* m_cursorArrowBitmap;
+	const CursorBitmap* m_cursorBusyBitmap;
+	const CursorBitmap* m_cursorNoBitmap;
+	const CursorBitmap* m_cursorCurrentBitmap;
 	char* m_mediaPath;
+	MxFloat m_cursorSensitivity;
 
 	char* m_iniPath;
 	MxFloat m_maxLod;
@@ -96,6 +104,7 @@ private:
 };
 
 extern IsleApp* g_isle;
+extern MxS32 g_closed;
 
 extern IDirect3DRMMiniwinDevice* GetD3DRMMiniwinDevice();
 

@@ -42,12 +42,33 @@ void GL11_DestroyTexture(GLuint texId)
 	glDeleteTextures(1, &texId);
 }
 
-GLuint GL11_UploadTextureData(void* pixels, int width, int height)
+int GL11_GetMaxTextureSize()
+{
+	GLint maxTextureSize = 0;
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+	return maxTextureSize;
+}
+
+GLuint GL11_UploadTextureData(void* pixels, int width, int height, bool isUI, float scaleX, float scaleY)
 {
 	GLuint texId;
 	glGenTextures(1, &texId);
 	glBindTexture(GL_TEXTURE_2D, texId);
+	if (isUI) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+	else {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
 	return texId;
 }
 
@@ -111,14 +132,12 @@ void GL11_BeginFrame(const Matrix4x4* projection)
 	glDepthMask(GL_TRUE);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);
-	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
 	// Disable all lights and reset global ambient
 	for (int i = 0; i < 8; ++i) {
 		glDisable(GL_LIGHT0 + i);
 	}
-	const GLfloat zeroAmbient[4] = {0.f, 0.f, 0.f, 1.f};
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, zeroAmbient);
+
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 
 	// Projection and view
@@ -132,7 +151,6 @@ void GL11_UploadLight(int lightIdx, GL11_BridgeSceneLight* l)
 {
 	// Setup light
 	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
 	glLoadIdentity();
 	GLenum lightId = GL_LIGHT0 + lightIdx++;
 	const FColor& c = l->color;
@@ -175,8 +193,6 @@ void GL11_UploadLight(int lightIdx, GL11_BridgeSceneLight* l)
 		glLightfv(lightId, GL_POSITION, pos);
 	}
 	glEnable(lightId);
-
-	glPopMatrix();
 }
 
 void GL11_EnableTransparency()
@@ -198,6 +214,7 @@ void GL11_SubmitDraw(
 	glLoadMatrixf(&modelViewMatrix[0][0]);
 	glEnable(GL_NORMALIZE);
 
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 	glColor4ub(appearance.color.r, appearance.color.g, appearance.color.b, appearance.color.a);
 
 	if (appearance.shininess != 0.0f) {
@@ -220,8 +237,6 @@ void GL11_SubmitDraw(
 
 	// Bind texture if present
 	if (appearance.textureId != NO_TEXTURE_ID) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texId);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -261,8 +276,6 @@ void GL11_SubmitDraw(
 
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_SHORT, mesh.indices.data());
 	}
-
-	glPopMatrix();
 }
 
 void GL11_Resize(int width, int height)
@@ -279,9 +292,10 @@ void GL11_Clear(float r, float g, float b)
 }
 
 void GL11_Draw2DImage(
-	GLuint texId,
+	const GLTextureCacheEntry* cache,
 	const SDL_Rect& srcRect,
 	const SDL_Rect& dstRect,
+	const FColor& color,
 	float left,
 	float right,
 	float bottom,
@@ -290,39 +304,39 @@ void GL11_Draw2DImage(
 {
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
+	glShadeModel(GL_FLAT);
 
 	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
 	glLoadIdentity();
 
 	glOrtho(left, right, bottom, top, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
 	glLoadIdentity();
 
 	glDisable(GL_LIGHTING);
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	glColor4f(color.r, color.g, color.b, color.a);
 
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texId);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	float u1 = 0;
+	float v1 = 0;
+	float u2 = 0;
+	float v2 = 0;
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	if (cache) {
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, cache->glTextureId);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	GLint boundTexture = 0;
-	glGetIntegerv(GL_TEXTURE_BINDING_2D, &boundTexture);
-
-	GLfloat texW, texH;
-	glGetTexLevelParameterfv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texW);
-	glGetTexLevelParameterfv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texH);
-
-	float u1 = srcRect.x / texW;
-	float v1 = srcRect.y / texH;
-	float u2 = (srcRect.x + srcRect.w) / texW;
-	float v2 = (srcRect.y + srcRect.h) / texH;
+		u1 = srcRect.x / cache->width;
+		v1 = srcRect.y / cache->height;
+		u2 = (srcRect.x + srcRect.w) / cache->width;
+		v2 = (srcRect.y + srcRect.h) / cache->height;
+	}
+	else {
+		glDisable(GL_TEXTURE_2D);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
 
 	float x1 = (float) dstRect.x;
 	float y1 = (float) dstRect.y;
@@ -342,13 +356,21 @@ void GL11_Draw2DImage(
 
 	// Restore state
 	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
 }
 
 void GL11_Download(SDL_Surface* target)
 {
 	glFinish();
 	glReadPixels(0, 0, target->w, target->h, GL_RGBA, GL_UNSIGNED_BYTE, target->pixels);
+}
+
+void GL11_SetDither(bool dither)
+{
+	if (dither) {
+		glEnable(GL_DITHER);
+	}
+	else {
+		glDisable(GL_DITHER);
+	}
 }

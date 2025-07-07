@@ -40,25 +40,19 @@ Direct3DRMRenderer* OpenGLES2Renderer::Create(DWORD width, DWORD height)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
-	SDL_Window* window = DDWindow;
-	bool testWindow = false;
-	if (!window) {
-		window = SDL_CreateWindow("OpenGL ES 2.0 test", width, height, SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL);
-		testWindow = true;
-	}
-
-	SDL_GLContext context = SDL_GL_CreateContext(window);
-	if (!context) {
-		if (testWindow) {
-			SDL_DestroyWindow(window);
-		}
+	if (!DDWindow) {
+		SDL_Log("No window handler");
 		return nullptr;
 	}
 
-	if (!SDL_GL_MakeCurrent(window, context)) {
-		if (testWindow) {
-			SDL_DestroyWindow(window);
-		}
+	SDL_GLContext context = SDL_GL_CreateContext(DDWindow);
+	if (!context) {
+		SDL_Log("SDL_GL_CreateContext: %s", SDL_GetError());
+		return nullptr;
+	}
+
+	if (!SDL_GL_MakeCurrent(DDWindow, context)) {
+		SDL_GL_DestroyContext(context);
 		return nullptr;
 	}
 
@@ -174,10 +168,6 @@ Direct3DRMRenderer* OpenGLES2Renderer::Create(DWORD width, DWORD height)
 	glDeleteShader(vs);
 	glDeleteShader(fs);
 
-	if (testWindow) {
-		SDL_DestroyWindow(window);
-	}
-
 	return new OpenGLES2Renderer(width, height, context, shaderProgram);
 }
 
@@ -286,6 +276,7 @@ OpenGLES2Renderer::~OpenGLES2Renderer()
 {
 	SDL_DestroySurface(m_renderedImage);
 	glDeleteProgram(m_shaderProgram);
+	SDL_GL_DestroyContext(m_context);
 }
 
 void OpenGLES2Renderer::PushLights(const SceneLight* lightsArray, size_t count)
@@ -330,7 +321,7 @@ void OpenGLES2Renderer::AddTextureDestroyCallback(Uint32 id, IDirect3DRMTexture*
 	);
 }
 
-bool UploadTexture(SDL_Surface* source, GLuint& outTexId, bool isUi)
+bool UploadTexture(SDL_Surface* source, GLuint& outTexId, bool isUI)
 {
 	SDL_Surface* surf = source;
 	if (source->format != SDL_PIXELFORMAT_RGBA32) {
@@ -344,7 +335,7 @@ bool UploadTexture(SDL_Surface* source, GLuint& outTexId, bool isUi)
 	glBindTexture(GL_TEXTURE_2D, outTexId);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surf->w, surf->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surf->pixels);
 
-	if (isUi) {
+	if (isUI) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -371,7 +362,7 @@ bool UploadTexture(SDL_Surface* source, GLuint& outTexId, bool isUi)
 	return true;
 }
 
-Uint32 OpenGLES2Renderer::GetTextureId(IDirect3DRMTexture* iTexture, bool isUi)
+Uint32 OpenGLES2Renderer::GetTextureId(IDirect3DRMTexture* iTexture, bool isUI, float scaleX, float scaleY)
 {
 	auto texture = static_cast<Direct3DRMTextureImpl*>(iTexture);
 	auto surface = static_cast<DirectDrawSurfaceImpl*>(texture->m_surface);
@@ -381,7 +372,7 @@ Uint32 OpenGLES2Renderer::GetTextureId(IDirect3DRMTexture* iTexture, bool isUi)
 		if (tex.texture == texture) {
 			if (tex.version != texture->m_version) {
 				glDeleteTextures(1, &tex.glTextureId);
-				if (UploadTexture(surface->m_surface, tex.glTextureId, isUi)) {
+				if (UploadTexture(surface->m_surface, tex.glTextureId, isUI)) {
 					tex.version = texture->m_version;
 				}
 			}
@@ -390,7 +381,7 @@ Uint32 OpenGLES2Renderer::GetTextureId(IDirect3DRMTexture* iTexture, bool isUi)
 	}
 
 	GLuint texId;
-	if (!UploadTexture(surface->m_surface, texId, isUi)) {
+	if (!UploadTexture(surface->m_surface, texId, isUI)) {
 		return NO_TEXTURE_ID;
 	}
 
@@ -607,7 +598,7 @@ void OpenGLES2Renderer::Flip()
 	}
 }
 
-void OpenGLES2Renderer::Draw2DImage(Uint32 textureId, const SDL_Rect& srcRect, const SDL_Rect& dstRect)
+void OpenGLES2Renderer::Draw2DImage(Uint32 textureId, const SDL_Rect& srcRect, const SDL_Rect& dstRect, FColor color)
 {
 	m_dirty = true;
 
@@ -616,25 +607,37 @@ void OpenGLES2Renderer::Draw2DImage(Uint32 textureId, const SDL_Rect& srcRect, c
 
 	glUseProgram(m_shaderProgram);
 
-	float color[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	float ambient[] = {1.0f, 1.0f, 1.0f, 1.0f};
 	float blank[] = {0.0f, 0.0f, 0.0f, 0.0f};
-	glUniform4fv(u_lightLocs[0][0], 1, color);
+	glUniform4fv(u_lightLocs[0][0], 1, ambient);
 	glUniform4fv(u_lightLocs[0][1], 1, blank);
 	glUniform4fv(u_lightLocs[0][2], 1, blank);
 	glUniform1i(m_lightCountLoc, 1);
 
-	glUniform4f(m_colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+	glUniform4f(m_colorLoc, color.r, color.g, color.b, color.a);
 	glUniform1f(m_shinLoc, 0.0f);
 
-	const GLES2TextureCacheEntry& texture = m_textures[textureId];
-	float scaleX = static_cast<float>(dstRect.w) / srcRect.w;
-	float scaleY = static_cast<float>(dstRect.h) / srcRect.h;
-	SDL_Rect expandedDstRect = {
-		static_cast<int>(std::round(dstRect.x - srcRect.x * scaleX)),
-		static_cast<int>(std::round(dstRect.y - srcRect.y * scaleY)),
-		static_cast<int>(std::round(texture.width * scaleX)),
-		static_cast<int>(std::round(texture.height * scaleY))
-	};
+	SDL_Rect expandedDstRect;
+	if (textureId != NO_TEXTURE_ID) {
+		const GLES2TextureCacheEntry& texture = m_textures[textureId];
+		float scaleX = static_cast<float>(dstRect.w) / srcRect.w;
+		float scaleY = static_cast<float>(dstRect.h) / srcRect.h;
+		expandedDstRect = {
+			static_cast<int>(std::round(dstRect.x - srcRect.x * scaleX)),
+			static_cast<int>(std::round(dstRect.y - srcRect.y * scaleY)),
+			static_cast<int>(std::round(texture.width * scaleX)),
+			static_cast<int>(std::round(texture.height * scaleY))
+		};
+
+		glActiveTexture(GL_TEXTURE0);
+		glUniform1i(m_useTextureLoc, 1);
+		glBindTexture(GL_TEXTURE_2D, texture.glTextureId);
+		glUniform1i(m_textureLoc, 0);
+	}
+	else {
+		expandedDstRect = dstRect;
+		glUniform1i(m_useTextureLoc, 0);
+	}
 
 	D3DRMMATRIX4D modelView, projection;
 	Create2DTransformMatrix(
@@ -653,11 +656,6 @@ void OpenGLES2Renderer::Draw2DImage(Uint32 textureId, const SDL_Rect& srcRect, c
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(m_useTextureLoc, 1);
-	glBindTexture(GL_TEXTURE_2D, texture.glTextureId);
-	glUniform1i(m_textureLoc, 0);
 
 	glEnable(GL_SCISSOR_TEST);
 	glScissor(
@@ -714,4 +712,14 @@ void OpenGLES2Renderer::Download(SDL_Surface* target)
 	}
 
 	SDL_DestroySurface(bufferClone);
+}
+
+void OpenGLES2Renderer::SetDither(bool dither)
+{
+	if (dither) {
+		glEnable(GL_DITHER);
+	}
+	else {
+		glDisable(GL_DITHER);
+	}
 }

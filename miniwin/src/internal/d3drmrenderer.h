@@ -31,7 +31,7 @@ public:
 	virtual void PushLights(const SceneLight* vertices, size_t count) = 0;
 	virtual void SetProjection(const D3DRMMATRIX4D& projection, D3DVALUE front, D3DVALUE back) = 0;
 	virtual void SetFrustumPlanes(const Plane* frustumPlanes) = 0;
-	virtual Uint32 GetTextureId(IDirect3DRMTexture* texture, bool isUi = false) = 0;
+	virtual Uint32 GetTextureId(IDirect3DRMTexture* texture, bool isUI = false, float scaleX = 0, float scaleY = 0) = 0;
 	virtual Uint32 GetMeshId(IDirect3DRMMesh* mesh, const MeshGroup* meshGroup) = 0;
 	int GetWidth() { return m_width; }
 	int GetHeight() { return m_height; }
@@ -51,8 +51,9 @@ public:
 	virtual void Resize(int width, int height, const ViewportTransform& viewportTransform) = 0;
 	virtual void Clear(float r, float g, float b) = 0;
 	virtual void Flip() = 0;
-	virtual void Draw2DImage(Uint32 textureId, const SDL_Rect& srcRect, const SDL_Rect& dstRect) = 0;
+	virtual void Draw2DImage(Uint32 textureId, const SDL_Rect& srcRect, const SDL_Rect& dstRect, FColor color) = 0;
 	virtual void Download(SDL_Surface* target) = 0;
+	virtual void SetDither(bool dither) = 0;
 
 protected:
 	int m_width, m_height;

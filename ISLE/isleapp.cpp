@@ -28,7 +28,10 @@
 #include "mxtransitionmanager.h"
 #include "mxutilities.h"
 #include "mxvariabletable.h"
+#include "res/arrow_bmp.h"
+#include "res/busy_bmp.h"
 #include "res/isle_bmp.h"
+#include "res/no_bmp.h"
 #include "res/resource.h"
 #include "roi/legoroi.h"
 #include "tgl/d3drm/impl.h"
@@ -48,6 +51,15 @@
 #include "emscripten/events.h"
 #include "emscripten/filesystem.h"
 #include "emscripten/messagebox.h"
+#endif
+
+#ifdef __3DS__
+#include "3ds/apthooks.h"
+#include "3ds/config.h"
+#endif
+
+#ifdef WINDOWS_STORE
+#include "xbox_one_series/config.h"
 #endif
 
 DECOMP_SIZE_ASSERT(IsleApp, 0x8c)
@@ -81,6 +93,16 @@ MxS32 g_targetDepth = 16;
 
 // GLOBAL: ISLE 0x410064
 MxS32 g_reqEnableRMDevice = FALSE;
+
+MxFloat g_lastJoystickMouseX = 0;
+MxFloat g_lastJoystickMouseY = 0;
+MxFloat g_lastMouseX = 320;
+MxFloat g_lastMouseY = 240;
+
+bool g_dpadUp = false;
+bool g_dpadDown = false;
+bool g_dpadLeft = false;
+bool g_dpadRight = false;
 
 // STRING: ISLE 0x4101dc
 #define WINDOW_TITLE "LEGO®"
@@ -130,6 +152,10 @@ IsleApp::IsleApp()
 	m_cursorBusy = NULL;
 	m_cursorNo = NULL;
 	m_cursorCurrent = NULL;
+	m_cursorArrowBitmap = NULL;
+	m_cursorBusyBitmap = NULL;
+	m_cursorNoBitmap = NULL;
+	m_cursorCurrentBitmap = NULL;
 
 	LegoOmni::CreateInstance();
 
@@ -137,6 +163,7 @@ IsleApp::IsleApp()
 	m_maxLod = RealtimeView::GetUserMaxLOD();
 	m_maxAllowedExtras = m_islandQuality <= 1 ? 10 : 20;
 	m_transitionType = MxTransitionManager::e_mosaic;
+	m_cursorSensitivity = 4;
 }
 
 // FUNCTION: ISLE 0x4011a0
@@ -258,7 +285,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 
-	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK)) {
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) {
 		char buffer[256];
 		SDL_snprintf(
 			buffer,
@@ -314,6 +341,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv)
 		NULL
 	);
 #endif
+#ifdef __3DS__
+	N3DS_SetupAptHooks();
+#endif
 	return SDL_APP_CONTINUE;
 }
 
@@ -364,6 +394,8 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 		if (g_mousemoved) {
 			g_mousemoved = FALSE;
 		}
+
+		g_isle->MoveVirtualMouseViaJoystick();
 	}
 
 	return SDL_APP_CONTINUE;
@@ -432,12 +464,132 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 
 		SDL_Keycode keyCode = event->key.key;
 
-		if (event->key.mod == SDL_KMOD_LALT && keyCode == SDLK_RETURN) {
+		if ((event->key.mod & SDL_KMOD_LALT) && keyCode == SDLK_RETURN) {
 			SDL_SetWindowFullscreen(window, !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN));
 		}
 		else {
 			if (InputManager()) {
 				InputManager()->QueueEvent(c_notificationKeyPress, keyCode, 0, 0, keyCode);
+			}
+		}
+		break;
+	}
+	case SDL_EVENT_GAMEPAD_ADDED:
+	case SDL_EVENT_GAMEPAD_REMOVED: {
+		if (InputManager()) {
+			InputManager()->GetJoystick();
+		}
+		break;
+	}
+	case SDL_EVENT_GAMEPAD_BUTTON_DOWN: {
+		switch (event->gbutton.button) {
+		case SDL_GAMEPAD_BUTTON_DPAD_UP:
+			g_dpadUp = true;
+			break;
+		case SDL_GAMEPAD_BUTTON_DPAD_DOWN:
+			g_dpadDown = true;
+			break;
+		case SDL_GAMEPAD_BUTTON_DPAD_LEFT:
+			g_dpadLeft = true;
+			break;
+		case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
+			g_dpadRight = true;
+			break;
+		case SDL_GAMEPAD_BUTTON_EAST:
+			g_mousedown = TRUE;
+			if (InputManager()) {
+				InputManager()->QueueEvent(
+					c_notificationButtonDown,
+					LegoEventNotificationParam::c_lButtonState,
+					g_lastMouseX,
+					g_lastMouseY,
+					0
+				);
+			}
+			break;
+
+		case SDL_GAMEPAD_BUTTON_SOUTH:
+			if (InputManager()) {
+				InputManager()->QueueEvent(c_notificationKeyPress, SDLK_SPACE, 0, 0, SDLK_SPACE);
+			}
+			break;
+
+		case SDL_GAMEPAD_BUTTON_START:
+			if (InputManager()) {
+				InputManager()->QueueEvent(c_notificationKeyPress, SDLK_ESCAPE, 0, 0, SDLK_ESCAPE);
+			}
+			break;
+		}
+		break;
+	}
+
+	case SDL_EVENT_GAMEPAD_BUTTON_UP: {
+		switch (event->gbutton.button) {
+		case SDL_GAMEPAD_BUTTON_DPAD_UP:
+			g_dpadUp = false;
+			break;
+		case SDL_GAMEPAD_BUTTON_DPAD_DOWN:
+			g_dpadDown = false;
+			break;
+		case SDL_GAMEPAD_BUTTON_DPAD_LEFT:
+			g_dpadLeft = false;
+			break;
+		case SDL_GAMEPAD_BUTTON_DPAD_RIGHT:
+			g_dpadRight = false;
+			break;
+		case SDL_GAMEPAD_BUTTON_EAST:
+			g_mousedown = FALSE;
+			if (InputManager()) {
+				InputManager()->QueueEvent(
+					c_notificationButtonUp,
+					LegoEventNotificationParam::c_lButtonState,
+					g_lastMouseX,
+					g_lastMouseY,
+					0
+				);
+			}
+			break;
+		}
+		break;
+	}
+	case SDL_EVENT_GAMEPAD_AXIS_MOTION: {
+		MxS16 axisValue = 0;
+		if (event->gaxis.value < -8000 || event->gaxis.value > 8000) {
+			// Ignore small axis values
+			axisValue = event->gaxis.value;
+		}
+		if (event->gaxis.axis == SDL_GAMEPAD_AXIS_RIGHTX) {
+			g_lastJoystickMouseX = ((MxFloat) axisValue) / SDL_JOYSTICK_AXIS_MAX * g_isle->GetCursorSensitivity();
+		}
+		else if (event->gaxis.axis == SDL_GAMEPAD_AXIS_RIGHTY) {
+			g_lastJoystickMouseY = ((MxFloat) axisValue) / SDL_JOYSTICK_AXIS_MAX * g_isle->GetCursorSensitivity();
+		}
+		else if (event->gaxis.axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) {
+			if (axisValue != 0 && !g_mousedown) {
+				g_mousedown = TRUE;
+
+				if (InputManager()) {
+					InputManager()->QueueEvent(
+						c_notificationButtonDown,
+						LegoEventNotificationParam::c_lButtonState,
+						g_lastMouseX,
+						g_lastMouseY,
+						0
+					);
+				}
+			}
+			else if (axisValue == 0 && g_mousedown) {
+				g_mousedown = FALSE;
+
+				if (InputManager()) {
+					InputManager()->QueueEvent(
+						c_notificationButtonUp,
+						LegoEventNotificationParam::c_lButtonState,
+						g_lastMouseX,
+						g_lastMouseY,
+						0
+					);
+				}
 			}
 		}
 		break;
@@ -648,13 +800,19 @@ MxResult IsleApp::SetupWindow()
 	m_cursorBusy = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT);
 	m_cursorNo = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NOT_ALLOWED);
 	SDL_SetCursor(m_cursorCurrent);
+	if (g_isle->GetDrawCursor()) {
+		SDL_HideCursor();
+		m_cursorCurrentBitmap = m_cursorArrowBitmap = &arrow_cursor;
+		m_cursorBusyBitmap = &busy_cursor;
+		m_cursorNoBitmap = &no_cursor;
+	}
 
 	SDL_PropertiesID props = SDL_CreateProperties();
 	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, g_targetWidth);
 	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, g_targetHeight);
 	SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_FULLSCREEN_BOOLEAN, m_fullScreen);
 	SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, WINDOW_TITLE);
-#ifdef MINIWIN
+#if defined(MINIWIN) && !defined(__3DS__) && !defined(WINDOWS_STORE)
 	SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, true);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -731,6 +889,9 @@ MxResult IsleApp::SetupWindow()
 			LegoOmni::GetInstance()->GetInputManager()->SetUseJoystick(m_useJoystick);
 			LegoOmni::GetInstance()->GetInputManager()->SetJoystickIndex(m_joystickIndex);
 		}
+		if (LegoOmni::GetInstance()->GetVideoManager() && g_isle->GetDrawCursor()) {
+			LegoOmni::GetInstance()->GetVideoManager()->SetCursorBitmap(m_cursorCurrentBitmap);
+		}
 		MxDirect3D* d3d = LegoOmni::GetInstance()->GetVideoManager()->GetDirect3D();
 		if (d3d) {
 			SDL_Log(
@@ -755,6 +916,13 @@ bool IsleApp::LoadConfig()
 	// TODO: maybe use a different app name?
 	char* prefPath = SDL_GetPrefPath("isledecomp", "isle");
 	char* iniConfig;
+
+#ifdef __EMSCRIPTEN__
+	if (m_iniPath && !Emscripten_SetupConfig(m_iniPath)) {
+		m_iniPath = NULL;
+	}
+#endif
+
 	if (m_iniPath) {
 		iniConfig = new char[strlen(m_iniPath) + 1];
 		strcpy(iniConfig, m_iniPath);
@@ -769,10 +937,6 @@ bool IsleApp::LoadConfig()
 		strcpy(iniConfig, "isle.ini");
 	}
 	SDL_Log("Reading configuration from \"%s\"", iniConfig);
-
-#ifdef __EMSCRIPTEN__
-	Emscripten_SetupConfig(iniConfig);
-#endif
 
 	dictionary* dict = iniparser_load(iniConfig);
 
@@ -816,6 +980,8 @@ bool IsleApp::LoadConfig()
 		iniparser_set(dict, "isle:UseJoystick", m_useJoystick ? "true" : "false");
 		iniparser_set(dict, "isle:JoystickIndex", SDL_itoa(m_joystickIndex, buf, 10));
 		iniparser_set(dict, "isle:Draw Cursor", m_drawCursor ? "true" : "false");
+		SDL_snprintf(buf, sizeof(buf), "%f", m_cursorSensitivity);
+		iniparser_set(dict, "isle:Cursor Sensitivity", buf);
 
 		iniparser_set(dict, "isle:Back Buffers in Video RAM", "-1");
 
@@ -826,6 +992,12 @@ bool IsleApp::LoadConfig()
 		iniparser_set(dict, "isle:Max Allowed Extras", SDL_itoa(m_maxAllowedExtras, buf, 10));
 		iniparser_set(dict, "isle:Transition Type", SDL_itoa(m_transitionType, buf, 10));
 
+#ifdef __3DS__
+		N3DS_SetupDefaultConfigOverrides(dict);
+#endif
+#ifdef WINDOWS_STORE
+		XBONE_SetupDefaultConfigOverrides(dict);
+#endif
 		iniparser_dump_ini(dict, iniFP);
 		SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "New config written at '%s'", iniConfig);
 		fclose(iniFP);
@@ -867,6 +1039,7 @@ bool IsleApp::LoadConfig()
 	m_useJoystick = iniparser_getboolean(dict, "isle:UseJoystick", m_useJoystick);
 	m_joystickIndex = iniparser_getint(dict, "isle:JoystickIndex", m_joystickIndex);
 	m_drawCursor = iniparser_getboolean(dict, "isle:Draw Cursor", m_drawCursor);
+	m_cursorSensitivity = iniparser_getdouble(dict, "isle:Cursor Sensitivity", m_cursorSensitivity);
 
 	MxS32 backBuffersInVRAM = iniparser_getboolean(dict, "isle:Back Buffers in Video RAM", -1);
 	if (backBuffersInVRAM != -1) {
@@ -1015,15 +1188,19 @@ void IsleApp::SetupCursor(Cursor p_cursor)
 	switch (p_cursor) {
 	case e_cursorArrow:
 		m_cursorCurrent = m_cursorArrow;
+		m_cursorCurrentBitmap = m_cursorArrowBitmap;
 		break;
 	case e_cursorBusy:
 		m_cursorCurrent = m_cursorBusy;
+		m_cursorCurrentBitmap = m_cursorBusyBitmap;
 		break;
 	case e_cursorNo:
 		m_cursorCurrent = m_cursorNo;
+		m_cursorCurrentBitmap = m_cursorNoBitmap;
 		break;
 	case e_cursorNone:
 		m_cursorCurrent = NULL;
+		m_cursorCurrentBitmap = NULL;
 	case e_cursorUnused3:
 	case e_cursorUnused4:
 	case e_cursorUnused5:
@@ -1035,12 +1212,22 @@ void IsleApp::SetupCursor(Cursor p_cursor)
 		break;
 	}
 
-	if (m_cursorCurrent != NULL) {
-		SDL_SetCursor(m_cursorCurrent);
-		SDL_ShowCursor();
+	if (g_isle->GetDrawCursor()) {
+		if (m_cursorCurrentBitmap == NULL) {
+			VideoManager()->SetCursorBitmap(NULL);
+		}
+		else {
+			VideoManager()->SetCursorBitmap(m_cursorCurrentBitmap);
+		}
 	}
 	else {
-		SDL_HideCursor();
+		if (m_cursorCurrent != NULL) {
+			SDL_SetCursor(m_cursorCurrent);
+			SDL_ShowCursor();
+		}
+		else {
+			SDL_HideCursor();
+		}
 	}
 }
 
@@ -1166,4 +1353,48 @@ IDirect3DRMMiniwinDevice* GetD3DRMMiniwinDevice()
 		return nullptr;
 	}
 	return d3drmMiniwinDev;
+}
+
+void IsleApp::MoveVirtualMouseViaJoystick()
+{
+	float dpadX = 0.0f;
+	float dpadY = 0.0f;
+
+	if (g_dpadLeft) {
+		dpadX -= m_cursorSensitivity;
+	}
+	if (g_dpadRight) {
+		dpadX += m_cursorSensitivity;
+	}
+	if (g_dpadUp) {
+		dpadY -= m_cursorSensitivity;
+	}
+	if (g_dpadDown) {
+		dpadY += m_cursorSensitivity;
+	}
+
+	// Use joystick axis if non-zero, else fall back to dpad
+	float moveX = (g_lastJoystickMouseX != 0) ? g_lastJoystickMouseX : dpadX;
+	float moveY = (g_lastJoystickMouseY != 0) ? g_lastJoystickMouseY : dpadY;
+
+	if (moveX != 0 || moveY != 0) {
+		g_mousemoved = TRUE;
+
+		g_lastMouseX = SDL_clamp(g_lastMouseX + moveX, 0, 640);
+		g_lastMouseY = SDL_clamp(g_lastMouseY + moveY, 0, 480);
+
+		if (InputManager()) {
+			InputManager()->QueueEvent(
+				c_notificationMouseMove,
+				g_mousedown ? LegoEventNotificationParam::c_lButtonState : 0,
+				g_lastMouseX,
+				g_lastMouseY,
+				0
+			);
+		}
+
+		if (g_isle->GetDrawCursor()) {
+			VideoManager()->MoveCursor(Min((MxS32) g_lastMouseX, 639), Min((MxS32) g_lastMouseY, 479));
+		}
+	}
 }

@@ -162,9 +162,11 @@ ENABLE_BITMASK_OPERATORS(DDBltFastFlags)
 #define DDLOCK_SURFACEMEMORYPTR DDLockFlags::SURFACEMEMORYPTR
 #define DDLOCK_WAIT DDLockFlags::WAIT
 #define DDLOCK_WRITEONLY DDLockFlags::WRITEONLY
+#define DDLOCK_READONLY DDLockFlags::READONLY
 enum class DDLockFlags : uint32_t {
 	SURFACEMEMORYPTR = 0,
 	WAIT = 1 << 0,
+	READONLY = 1 << 4,
 	WRITEONLY = 1 << 5,
 };
 ENABLE_BITMASK_OPERATORS(DDLockFlags)
@@ -246,9 +248,13 @@ struct DDSCAPS {
 };
 typedef struct DDSCAPS* LPDDSCAPS;
 
+#define DDBLTFX_NOTEARING DDBLTFXFlags::NOTEARING
+enum class DDBLTFXFlags : uint8_t {
+	NOTEARING = 1 << 3,
+};
 struct DDBLTFX {
 	DWORD dwSize;
-	DWORD dwDDFX;
+	DDBLTFXFlags dwDDFX;
 	DWORD dwROP;
 	DWORD dwFillColor;
 };

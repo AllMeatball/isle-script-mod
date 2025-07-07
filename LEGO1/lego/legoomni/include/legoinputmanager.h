@@ -22,8 +22,8 @@ class LegoCameraController;
 class LegoControlManager;
 class LegoWorld;
 
-extern MxS32 g_unk0x100f31b0;
-extern const char* g_unk0x100f31b4;
+extern MxS32 g_clickedObjectId;
+extern const char* g_clickedAtom;
 
 // VTABLE: LEGO1 0x100d87b8
 // class MxCollection<LegoEventNotificationParam>
@@ -108,7 +108,7 @@ public:
 
 	MxResult Create(HWND p_hwnd);
 	void Destroy() override;
-	MxResult GetJoystick();
+	LEGO1_EXPORT MxResult GetJoystick();
 	MxResult GetJoystickState(MxU32* p_joystickX, MxU32* p_joystickY, MxU32* p_povPosition);
 	void StartAutoDragTimer();
 	void StopAutoDragTimer();
@@ -166,7 +166,7 @@ private:
 	const bool* m_keyboardState;
 	MxBool m_unk0x195; // 0x195
 	SDL_JoystickID* m_joyids;
-	SDL_Joystick* m_joystick;
+	SDL_Gamepad* m_joystick;
 	MxS32 m_joystickIndex; // 0x19c
 	MxBool m_useJoystick;  // 0x334
 	MxBool m_unk0x335;     // 0x335

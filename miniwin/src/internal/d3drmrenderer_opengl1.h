@@ -18,7 +18,7 @@ public:
 	void PushLights(const SceneLight* lightsArray, size_t count) override;
 	void SetProjection(const D3DRMMATRIX4D& projection, D3DVALUE front, D3DVALUE back) override;
 	void SetFrustumPlanes(const Plane* frustumPlanes) override;
-	Uint32 GetTextureId(IDirect3DRMTexture* texture, bool isUi) override;
+	Uint32 GetTextureId(IDirect3DRMTexture* texture, bool isUI, float scaleX, float scaleY) override;
 	Uint32 GetMeshId(IDirect3DRMMesh* mesh, const MeshGroup* meshGroup) override;
 	HRESULT BeginFrame() override;
 	void EnableTransparency() override;
@@ -34,8 +34,9 @@ public:
 	void Resize(int width, int height, const ViewportTransform& viewportTransform) override;
 	void Clear(float r, float g, float b) override;
 	void Flip() override;
-	void Draw2DImage(Uint32 textureId, const SDL_Rect& srcRect, const SDL_Rect& dstRect) override;
+	void Draw2DImage(Uint32 textureId, const SDL_Rect& srcRect, const SDL_Rect& dstRect, FColor color) override;
 	void Download(SDL_Surface* target) override;
+	void SetDither(bool dither) override;
 
 private:
 	void AddTextureDestroyCallback(Uint32 id, IDirect3DRMTexture* texture);
@@ -46,6 +47,7 @@ private:
 	D3DRMMATRIX4D m_projection;
 	SDL_Surface* m_renderedImage;
 	bool m_useVBOs;
+	bool m_useNPOT;
 	bool m_dirty = false;
 	std::vector<SceneLight> m_lights;
 	SDL_GLContext m_context;
