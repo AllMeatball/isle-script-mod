@@ -2,6 +2,9 @@
 #define LEGOLUAWRAPS_H
 #include <sol/sol.hpp>
 
+void Lego3DView_SolWrap(sol::state &p_lua);
+void Lego3DManager_SolWrap(sol::state& p_lua);
+
 void LegoAnimationManager_SolWrap(sol::state& p_lua);
 void LegoWorld_SolWrap(sol::state& p_lua);
 

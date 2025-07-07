@@ -230,7 +230,7 @@ public:
 			std::string what = err.what();
 			SDL_LogError(LEGO_LOG_CATEGORY_LUA, "Failed to start callback '%s': %s", name.c_str(), what.c_str());
 			SDL_LogWarn(LEGO_LOG_CATEGORY_LUA, "Halting callback to reduce console spam");
-			callback_entry->halted = true;
+			// callback_entry->halted = true;
 			return;
 		}
 	}

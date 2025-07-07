@@ -1,5 +1,25 @@
 #include "legoluawraps.h"
 
+void Lego3DView_SolWrap(sol::state &p_lua)
+{
+	sol::usertype<Lego3DView> three_dee_mgr_type = p_lua.new_usertype<Lego3DView>(
+		"Lego3DView",
+
+		"GetViewManager",
+		&Lego3DView::GetViewManager
+	);
+}
+
+void Lego3DManager_SolWrap(sol::state &p_lua)
+{
+	sol::usertype<Lego3DManager> three_dee_mgr_type = p_lua.new_usertype<Lego3DManager>(
+		"Lego3DManager",
+
+		"GetLego3DView",
+		&Lego3DManager::GetLego3DView
+	);
+}
+
 void LegoAnimationManager_SolWrap(sol::state& p_lua)
 {
 	p_lua["AnimationManager"] = &AnimationManager;
@@ -18,7 +38,13 @@ void LegoWorld_SolWrap(sol::state& p_lua)
 		"LegoWorld",
 
 		"Escape",
-		&LegoWorld::Escape
+		&LegoWorld::Escape,
+
+		"GetWorldId",
+		&LegoWorld::GetWorldId,
+
+		"GetEntityList",
+		&LegoWorld::GetEntityList
 	);
 }
 
@@ -87,6 +113,9 @@ void LegoVideoManager_SolWrap(sol::state &p_lua)
 		"LegoVideoManager",
 		"EnableFullScreenMovieWithScale",
 		&LegoVideoManager::EnableFullScreenMovieWithScale,
+
+		"GetViewROI",
+		&LegoVideoManager::GetViewROI,
 
 		"SetRender3D",
 		&LegoVideoManager::SetRender3D,

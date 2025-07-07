@@ -664,25 +664,6 @@ void LegoOmni::SetupLuaState()
 	infocenterstate_type["m_unk0x74"] = &InfocenterState::m_unk0x74;
 	infocenterstate_type["HasRegistered"] = &InfocenterState::HasRegistered;
 
-	LegoAnimationManager_SolWrap(m_lua);
-
-	LegoWorld_SolWrap(m_lua);
-	LegoEventNotificationParam_SolWrap(m_lua);
-	LegoNavController_SolWrap(m_lua);
-
-	MxTimer_SolWrap(m_lua);
-	MxTransitionManager_SolWrap(m_lua);
-	MxBackgroundAudioManager_SolWrap(m_lua);
-	MxVariableTable_SolWrap(m_lua);
-
-	MxStreamer_SolWrap(m_lua);
-	MxStreamController_SolWrap(m_lua);
-
-	LegoGameState_SolWrap(m_lua);
-	LegoVideoManager_SolWrap(m_lua);
-
-	MxDSAction_SolWrap(m_lua);
-
 	sol::usertype<LegoOmni> omni_type = m_lua.new_usertype<LegoOmni>(
 		"LegoOmni",
 
@@ -696,8 +677,16 @@ void LegoOmni::SetupLuaState()
 		&LegoOmni::Resume,
 
 		"IsPaused",
-		&LegoOmni::IsPaused
+		&LegoOmni::IsPaused,
+
+		"GetCurrentWorld",
+		&LegoOmni::GetCurrentWorld,
+
+		"GetPlantManager",
+		&LegoOmni::GetPlantManager
 	);
+
+	LegoLua_LoadWraps(m_lua);
 
 	m_lua["LEGO"] = this;
 

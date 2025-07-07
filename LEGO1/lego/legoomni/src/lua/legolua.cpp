@@ -4,6 +4,7 @@
 
 #include "misc.h"
 #include "compat.h"
+#include "legoluawraps.h"
 #include "legoeventnotificationparam.h"
 
 // (For single character delimiter) by Quonux and Arafat Hasan https://stackoverflow.com/a/46931770 under CC BY-SA 4.0
@@ -341,4 +342,26 @@ void LegoLua_BindScripts() {
 	lua["g_sndAnimScript"]  = g_sndAnimScript;
 	lua["g_creditsScript"]  = g_creditsScript;
 	lua["g_nocdSourceName"] = g_nocdSourceName;
+}
+
+void LegoLua_LoadWraps(sol::state &p_lua) {
+	LegoVideoManager_SolWrap(p_lua);
+	Lego3DView_SolWrap(p_lua);
+	Lego3DManager_SolWrap(p_lua);
+	LegoAnimationManager_SolWrap(p_lua);
+
+	LegoWorld_SolWrap(p_lua);
+	LegoEventNotificationParam_SolWrap(p_lua);
+	LegoNavController_SolWrap(p_lua);
+
+	MxTimer_SolWrap(p_lua);
+	MxTransitionManager_SolWrap(p_lua);
+	MxBackgroundAudioManager_SolWrap(p_lua);
+	MxVariableTable_SolWrap(p_lua);
+
+	MxStreamer_SolWrap(p_lua);
+	MxStreamController_SolWrap(p_lua);
+
+	LegoGameState_SolWrap(p_lua);
+	MxDSAction_SolWrap(p_lua);
 }
