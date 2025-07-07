@@ -54,7 +54,7 @@ MxU32 g_infohatVariantCounter = 2;
 MxU32 g_autoRoiCounter = 0;
 
 // GLOBAL: LEGO1 0x10104f20
-LegoActorInfo g_actorInfo[66];
+std::vector<LegoActorInfo> g_actorInfo;
 
 // FUNCTION: LEGO1 0x10082a20
 // FUNCTION: BETA10 0x10073c60
@@ -90,28 +90,24 @@ LegoCharacterManager::~LegoCharacterManager()
 // FUNCTION: LEGO1 0x10083270
 void LegoCharacterManager::Init()
 {
-	for (MxS32 i = 0; i < sizeOfArray(g_actorInfo); i++) {
-		g_actorInfo[i] = g_actorInfoInit[i];
+	for (LegoActorInfo info : g_actorInfoInit) {
+		g_actorInfo.push_back(info);
 	}
 }
 
 // FUNCTION: LEGO1 0x100832a0
 void LegoCharacterManager::ReleaseAllActors()
 {
-	for (MxS32 i = 0; i < sizeOfArray(g_actorInfo); i++) {
-		LegoActorInfo* info = GetActorInfo(g_actorInfo[i].m_name);
+	for (LegoActorInfo info : g_actorInfo) {
+		LegoExtraActor* actor = info.m_actor;
 
-		if (info != NULL) {
-			LegoExtraActor* actor = info->m_actor;
+		if (actor != NULL && actor->IsA("LegoExtraActor")) {
+			LegoROI* roi = info.m_roi;
+			MxU32 refCount = GetRefCount(roi);
 
-			if (actor != NULL && actor->IsA("LegoExtraActor")) {
-				LegoROI* roi = g_actorInfo[i].m_roi;
-				MxU32 refCount = GetRefCount(roi);
-
-				while (refCount != 0) {
-					ReleaseActor(roi);
-					refCount = GetRefCount(roi);
-				}
+			while (refCount != 0) {
+				ReleaseActor(roi);
+				refCount = GetRefCount(roi);
 			}
 		}
 	}
@@ -122,8 +118,8 @@ MxResult LegoCharacterManager::Write(LegoStorage* p_storage)
 {
 	MxResult result = FAILURE;
 
-	for (MxS32 i = 0; i < sizeOfArray(g_actorInfo); i++) {
-		LegoActorInfo* info = &g_actorInfo[i];
+	for (LegoActorInfo &info_ref : g_actorInfo) {
+		LegoActorInfo* info = &info_ref;
 
 		if (p_storage->Write(&info->m_sound, sizeof(info->m_sound)) != SUCCESS) {
 			goto done;
@@ -185,8 +181,8 @@ MxResult LegoCharacterManager::Read(LegoStorage* p_storage)
 {
 	MxResult result = FAILURE;
 
-	for (MxS32 i = 0; i < sizeOfArray(g_actorInfo); i++) {
-		LegoActorInfo* info = &g_actorInfo[i];
+	for (LegoActorInfo &info_ref : g_actorInfo) {
+		LegoActorInfo* info = &info_ref;
 
 		if (p_storage->Read(&info->m_sound, sizeof(MxS32)) != SUCCESS) {
 			goto done;
@@ -230,7 +226,7 @@ done:
 // FUNCTION: BETA10 0x100742eb
 const char* LegoCharacterManager::GetActorName(MxS32 p_index)
 {
-	if (p_index < sizeOfArray(g_actorInfo)) {
+	if (p_index < g_actorInfo.size()) {
 		return g_actorInfo[p_index].m_name;
 	}
 	else {
@@ -242,7 +238,7 @@ const char* LegoCharacterManager::GetActorName(MxS32 p_index)
 // FUNCTION: BETA10 0x1007432a
 MxU32 LegoCharacterManager::GetNumActors()
 {
-	return sizeOfArray(g_actorInfo);
+	return g_actorInfo.size();
 }
 
 // FUNCTION: LEGO1 0x10083500
@@ -659,8 +655,8 @@ MxBool LegoCharacterManager::SetHeadTexture(LegoROI* p_roi, LegoTextureInfo* p_t
 // FUNCTION: LEGO1 0x10084c00
 MxBool LegoCharacterManager::IsActor(const char* p_name)
 {
-	for (MxU32 i = 0; i < sizeOfArray(g_actorInfo); i++) {
-		if (!SDL_strcasecmp(g_actorInfo[i].m_name, p_name)) {
+	for (LegoActorInfo info : g_actorInfo) {
+		if (!SDL_strcasecmp(info.m_name, p_name)) {
 			return TRUE;
 		}
 	}
@@ -684,15 +680,15 @@ LegoExtraActor* LegoCharacterManager::GetExtraActor(const char* p_name)
 // FUNCTION: BETA10 0x10075ede
 LegoActorInfo* LegoCharacterManager::GetActorInfo(const char* p_name)
 {
-	MxU32 i;
+	size_t i;
 
-	for (i = 0; i < sizeOfArray(g_actorInfo); i++) {
+	for (i = 0; i < g_actorInfo.size(); i++) {
 		if (!SDL_strcasecmp(g_actorInfo[i].m_name, p_name)) {
 			break;
 		}
 	}
 
-	if (i < sizeOfArray(g_actorInfo)) {
+	if (i < g_actorInfo.size()) {
 		return &g_actorInfo[i];
 	}
 	else {
@@ -704,15 +700,15 @@ LegoActorInfo* LegoCharacterManager::GetActorInfo(const char* p_name)
 // FUNCTION: BETA10 0x10075f66
 LegoActorInfo* LegoCharacterManager::GetActorInfo(LegoROI* p_roi)
 {
-	MxU32 i;
+	size_t i;
 
-	for (i = 0; i < sizeOfArray(g_actorInfo); i++) {
+	for (i = 0; i < g_actorInfo.size(); i++) {
 		if (g_actorInfo[i].m_roi == p_roi) {
 			break;
 		}
 	}
 
-	if (i < sizeOfArray(g_actorInfo)) {
+	if (i < g_actorInfo.size()) {
 		return &g_actorInfo[i];
 	}
 	else {

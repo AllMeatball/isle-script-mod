@@ -172,7 +172,7 @@ const char* g_colorAlias[] =
 	{"lego white", "lego black", "lego yellow", "lego red", "lego blue", "lego brown", "lego lt grey", "lego green"};
 
 // GLOBAL: LEGO1 0x100f80c0
-LegoActorInfo g_actorInfoInit[] = {
+std::vector<LegoActorInfo> g_actorInfoInit = {
 	{"pepper",
 	 NULL,
 	 NULL,

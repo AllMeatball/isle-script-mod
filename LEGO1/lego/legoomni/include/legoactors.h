@@ -4,6 +4,8 @@
 #include "decomp.h"
 #include "mxtypes.h"
 
+#include <vector>
+
 class LegoExtraActor;
 class LegoROI;
 
@@ -72,7 +74,7 @@ enum LegoActorParts {
 	c_legrtPart
 };
 
-extern LegoActorInfo g_actorInfoInit[66];
+extern std::vector<LegoActorInfo>g_actorInfoInit;
 extern LegoActorLOD g_actorLODs[11];
 
 #endif // LEGOACTORS_H
